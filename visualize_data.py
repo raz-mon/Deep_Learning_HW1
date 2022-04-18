@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 def visualize_2D_data(path):
     data = read_mat(path)
-    # print(data)
+    print(data)
 
     Ct_df = pd.DataFrame(data['Ct'])
     Cv_df = pd.DataFrame(data['Cv'])
