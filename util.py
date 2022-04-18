@@ -1,5 +1,4 @@
 import random
-
 import numpy as np
 
 """
@@ -51,8 +50,6 @@ class SGD:
     def go(self):
         """
         Perform the SGD algorithm, until one of the stoppage conditions are met.
-        :param max_iter: Maximum iterations.
-        :param toll: From this distance and smaller, we can stop computing, we are close enough to the minumum.
         :return:
         """
         for i in range(self.max_iter):
