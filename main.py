@@ -48,20 +48,21 @@
 #  them randomly). How do the results change, if at all?
 
 import numpy as np
-
-
-def soft_max_regression(X: np.array, W: np.array, C: np.array):
-    X_tW = X.transpose() @ W
-    divisor = np.sum(np.exp(X_tW), axis=0)
-    F = np.sum(C * np.log(np.exp(X_tW) / divisor), axis=0)
-    gradw_F = 1 / (len(X)) * (X @ (np.exp(X_tW) / divisor - C))
-    return F, gradw_F
+import util
 
 
 def main():
-    a = np.array([2, 2, 2])
-    b = np.array([[1, 0, 0], [0, 5, 0], [1, 0, 2]])
-    print(soft_max_regression(b, b, b)[1])
+    """""""""
+    v = np.array([1, -2, 1])
+    X = np.array([[1, 0, 0], [2, 5, 8], [9, 9, 9]])
+    C = np.random.randint(0,2, size=(len(X), len(X) + 2))
+    W = np.ones((len(X), len(X) + 2))
+    # print(np.random.randint(0,2, size=(len(X), len(X))))
+    print(util.gradient_test(v, 0.0125, X, W, C))
+    """""""""
+    W = np.ones((3, 5))
+    v = np.array([[1],[2],[3]])
+    print(W/v)
 
 
 if __name__ == "__main__":
