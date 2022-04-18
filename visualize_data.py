@@ -1,7 +1,7 @@
 from pymatreader import read_mat
 import pandas as pd
 import matplotlib.pyplot as plt
-# hello
+
 def visualize_2D_data(path):
     data = read_mat(path)
     # print(data)
