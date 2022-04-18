@@ -1,9 +1,16 @@
 """
 Here we'll put our utility functions (SGD, derivatives etc.).
 """
+
+
 import numpy as np
 
-# Todo: Remain: biases
+class SGD:
+    """Optimize a function using Stochastich Gradient Descent"""
+
+
+
+# Todo: biases
 def soft_max_regression(X: np.array, W: np.array, C: np.array):
     X_tW = X.transpose() @ W
     divisor = np.sum(np.exp(X_tW), axis=0)
