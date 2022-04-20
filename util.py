@@ -58,11 +58,11 @@ class SGD:
                 break
             """
             self._step()
-            self.loss += self._calc_loss()
+            self.loss += [self._calc_loss()]
         return self.params
 
     def _calc_loss(self):
-        return sum([self.func(x_i, self.params) for x_i in self.data]) / len(self.data)
+        return sum([self.func(x_i, *self.params) for x_i in self.data]) / len(self.data)
 
     def _rand_pick(self):
         """
