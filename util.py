@@ -85,6 +85,13 @@ class SGD:
 
 # Todo: biases for this part.
 def soft_max_regression(X: np.array, W: np.array, C: np.array):
+    """""
+    Computing the loss function 'Soft-Max regression'.
+        :param X. The data input as a matrix of size nXm
+        :param W. The weights, size of nXl (where l is the amount of labels)
+        :param C. Indicators matrix. size of mXl.
+        :return the loss function, and the gradients with respect to X,W.
+    """""
     X_tW = X.transpose() @ W
     arg = X_tW - get_etta(X_tW)
     prob = (np.exp(arg).transpose() / np.sum(np.exp(arg), axis=1)).transpose()
@@ -97,6 +104,10 @@ def soft_max_regression(X: np.array, W: np.array, C: np.array):
 
 
 def get_etta(A: np.array):
+    """""
+    This method calculate the etta vector that required to reduce from A in order to prevent numerical overflow.
+    :return etta vector. this vector is the column with the maximal norm from A.
+    """""
     etta = A.T[0]
     for a in A.T:
         if np.linalg.norm(a) > np.linalg.norm(etta):
@@ -105,6 +116,13 @@ def get_etta(A: np.array):
 
 
 def gradient_test_X(X: np.array, W: np.array, C: np.array):
+    """""
+    Gradient test with respect for X.
+    :param X matrix.
+    :param W matrix.
+    :param C matrix.
+    :return matplotlib graph which shows the gradiant test.
+    """""
     V = np.random.rand(X.shape[0], X.shape[1])
     d = (V / np.linalg.norm(V))
     err_1 = []
@@ -121,6 +139,13 @@ def gradient_test_X(X: np.array, W: np.array, C: np.array):
 
 
 def gradient_test_W(X: np.array, W: np.array, C: np.array):
+    """""
+    Gradient test with respect for W.
+    :param X matrix.
+    :param W matrix.
+    :param C matrix.
+    :return matplotlib graph which shows the gradiant test.
+    """""
     V = np.random.rand(W.shape[0], W.shape[1])
     d = (V / np.linalg.norm(V))
     err_1 = []
@@ -137,6 +162,9 @@ def gradient_test_W(X: np.array, W: np.array, C: np.array):
 
 
 def print_grad_test(k, err_1, err_2, title):
+    """""
+    Plot a graph with O(e) and O(e^2) for the gradiant test. 
+    """""
     plt.rc("font", size=16, family="Times New Roman")
     fig = plt.figure(figsize=(10, 6))
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
@@ -151,6 +179,13 @@ def print_grad_test(k, err_1, err_2, title):
 
 
 def generate_batch(X, Y, batch_size):
+    """""
+    Mini batch from data.
+    :param X matrix. Represents the i's data point from the data.
+    :param Y matrix. Represent the i's classification of data i'.
+    :param batch_size. mini batch size desired.
+    :return A random mini batch with size batch_size.
+    """""
     data = []
     for i in range(len(X)):
         data.append([X[i], Y[i]])
