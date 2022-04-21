@@ -18,7 +18,8 @@
 
 """ Part 2"""
 
-# Todo: Write the code for the standard neural network. Including the forward pass and backward pass (the computation of the “Jacobian transpose times vector”). See that the
+# Todo: Write the code for the standard neural network.
+#  Including the forward pass and backward pass (the computation of the “Jacobian transpose times vector”). See that the
 #  Jacobian tests work and submit the tests (using plots, as demonstrated in the course
 #  notes). This part should not be overlooked. Remark: for the Jacobian tests use
 #  the tanh() activation function, as it is differentiable and will behave properly in the
@@ -46,23 +47,20 @@
 
 # Todo: Repeat the previous section, only now use only 200 data points for training (sample
 #  them randomly). How do the results change, if at all?
-
 import numpy as np
 import util
 
 
 def main():
-    """""""""
-    v = np.array([1, -2, 1])
-    X = np.array([[1, 0, 0], [2, 5, 8], [9, 9, 9]])
-    C = np.random.randint(0,2, size=(len(X), len(X) + 2))
-    W = np.ones((len(X), len(X) + 2))
-    # print(np.random.randint(0,2, size=(len(X), len(X))))
-    print(util.gradient_test(v, 0.0125, X, W, C))
-    """""""""
-    W = np.ones((3, 5))
-    v = np.array([[1],[2],[3]])
-    print(W/v)
+    X = np.array([[1, 0, 0, -1, 0], [0, 5, 0, 0, 1], [1, 0, 2, -2, 1], [4,4,4,4,4], [9,2,8,3,7]])
+    W = np.ones((5, 3))
+    C = np.random.randint(0,2,(5, 3))
+    v = np.array([[1, 2, 3, 4, 5]])
+    print(X.reshape(-1, 1))
+    # print(X.transpose() @ W[0, :])
+    # print(W / v.transpose())
+    epsilon = 0.5
+    # print(util.gradient_test(v,epsilon,X,W,C))
 
 
 if __name__ == "__main__":
