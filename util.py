@@ -1,4 +1,6 @@
 import random
+
+import matplotlib.pyplot as plt
 import numpy as np
 
 """
@@ -60,11 +62,11 @@ class SGD:
                 break
             """
             self._step()
-            self.loss += self._calc_loss()
+            self.loss += [self._calc_loss()]
         return self.params
 
     def _calc_loss(self):
-        return sum([self.func(x_i, self.params) for x_i in self.data]) / len(self.data)
+        return sum([self.func(x_i, *self.params) for x_i in self.data]) / len(self.data)
 
     def _rand_pick(self):
         """
@@ -84,21 +86,68 @@ class SGD:
 # Todo: biases for this part.
 def soft_max_regression(X: np.array, W: np.array, C: np.array):
     X_tW = X.transpose() @ W
-    divisor = np.sum(np.exp(X_tW), axis=1)
-    # F = np.sum(C * np.log(np.exp(X_tW) / divisor), axis=0)
-    F = np.sum((C * np.log(np.exp(X_tW).transpose() / divisor).transpose()), axis=1)
-    # grad_w_F = 1 / (len(X)) * (X @ (np.exp(X_tW).transpose() / divisor - C))
-    grad_w_F = 1 / (len(X)) * (X @ ((np.exp(X_tW).transpose() / divisor).transpose() - C))
-    return F, grad_w_F
+    arg = X_tW - get_etta(X_tW)
+    prob = (np.exp(arg).transpose() / np.sum(np.exp(arg), axis=1)).transpose()
+    F = np.sum(C * np.log(prob))
+    m = len(X)
+    grad_W = (1 / m) * (X @ (prob - C))
+    grad_X = (1 / m) * (W @ (prob - C).T)
+    grad_b = (1 / m) * np.sum((prob - C), axis=1).reshape(-1, 1)
+    return F, grad_W, grad_X, grad_b
 
 
-def gradient_test(v: np.array, epsilon: float, X: np.array, W: np.array, C: np.array):
-    d = v / np.linalg.norm(v)
-    f_x, df_x = soft_max_regression(X, W, C)
-    f_x_ed, df_x_ed = soft_max_regression(X + (epsilon * d), W, C)
-    O_e = np.linalg.norm(f_x_ed - f_x)
-    O_e_square = np.linalg.norm(f_x_ed - f_x - epsilon * d.transpose() @ df_x)
-    return O_e, O_e_square
+def get_etta(A: np.array):
+    etta = A.T[0]
+    for a in A.T:
+        if np.linalg.norm(a) > np.linalg.norm(etta):
+            etta = a
+    return etta.reshape(-1, 1)
+
+
+def gradient_test_X(X: np.array, W: np.array, C: np.array):
+    V = np.random.rand(X.shape[0], X.shape[1])
+    d = (V / np.linalg.norm(V))
+    err_1 = []
+    err_2 = []
+    ks = []
+    for k in range(1, 10):
+        epsilon = 0.5 ** k
+        f_x, _, grad_X, _ = soft_max_regression(X, W, C)
+        f_x_d, _, grad_X_d, _ = soft_max_regression(X + epsilon * d, W, C)
+        err_1.append(abs(f_x_d - f_x))
+        err_2.append(abs(f_x_d - f_x - epsilon * (d.reshape(1, -1) @ grad_X.reshape(-1, 1))[0][0]))
+        ks.append(k)
+    print_grad_test(ks, err_1, err_2, "$\delta X$")
+
+
+def gradient_test_W(X: np.array, W: np.array, C: np.array):
+    V = np.random.rand(W.shape[0], W.shape[1])
+    d = (V / np.linalg.norm(V))
+    err_1 = []
+    err_2 = []
+    ks = []
+    for k in range(1, 10):
+        epsilon = 0.5 ** k
+        f_x, grad_W, _, _ = soft_max_regression(X, W, C)
+        f_x_d, grad_W_d, _, _ = soft_max_regression(X, W + epsilon * d, C)
+        err_1.append(abs(f_x_d - f_x))
+        err_2.append(abs(f_x_d - f_x - epsilon * (d.reshape(1, -1) @ grad_W.reshape(-1, 1))[0][0]))
+        ks.append(k)
+    print_grad_test(ks, err_1, err_2, "$\delta W$")
+
+
+def print_grad_test(k, err_1, err_2, title):
+    plt.rc("font", size=16, family="Times New Roman")
+    fig = plt.figure(figsize=(10, 6))
+    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+    ax.semilogy(k, err_1, label="O($\\varepsilon$)")
+    ax.semilogy(k, err_2, label="O($\\varepsilon^2$)")
+    ax.set_xlabel("k", fontdict={"size": 21})
+    ax.set_ylabel("error", fontdict={"size": 21})
+    plt.grid(True)
+    plt.title("Gradiant Test: " + title)
+    plt.legend()
+    plt.show()
 
 
 def generate_batch(X, Y, batch_size):

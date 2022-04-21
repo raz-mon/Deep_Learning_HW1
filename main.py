@@ -52,16 +52,16 @@ import util
 
 
 def main():
-    X = np.array([[1, 0, 0, -1, 0], [0, 5, 0, 0, 1], [1, 0, 2, -2, 1], [4,4,4,4,4], [9,2,8,3,7]])
-    W = np.ones((5, 3))
-    C = np.random.randint(0,2,(5, 3))
-    v = np.array([[1, 2, 3, 4, 5]])
-    print(X.reshape(-1, 1))
-    # print(X.transpose() @ W[0, :])
-    # print(W / v.transpose())
-    epsilon = 0.5
-    # print(util.gradient_test(v,epsilon,X,W,C))
+    X = np.array([[1, 0, 9, -1, 0], [0, 5, 0, 0, 1], [1, 0, 2, -2, 1], [4, 4, 1, 4, 4], [9, 2, 8, 3, 7]])
+    W = np.random.uniform(-1, 1, (5, 3))
+    C = np.zeros((5, 3))
+    for row in C:
+        row[np.random.randint(0, len(row))] = 1
+    print(util.gradient_test_X(X, W, C))
 
 
 if __name__ == "__main__":
     main()
+
+
+
