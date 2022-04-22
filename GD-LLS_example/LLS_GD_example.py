@@ -85,5 +85,13 @@ plt.title('GD-LLS example - Loss vs num_epoch')
 plt.xlabel('epoch')
 plt.ylabel('x value')
 plt.plot(x, l)
-plt.savefig('GD-LLS_example.png')
+# plt.savefig('GD-LLS_example.png')
 plt.show()
+
+"""
+Show a polar plot:
+fig = plt.figure()
+axes1 = fig.add_axes([0, 0, 1, 1], projection='polar')
+axes1.plot(x, l)
+plt.show()
+"""
