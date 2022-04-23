@@ -103,6 +103,45 @@ def soft_max_regression(X: np.array, W: np.array, C: np.array):
     return F, grad_W, grad_X, grad_b
 
 
+def sm_loss(X, W, C):
+    """
+
+    :param X:
+    :type X:
+    :param W:
+    :type W:
+    :param C:
+    :type C:
+    :return:
+    :rtype:
+    """
+    X_tW = X.transpose() @ W
+    arg = X_tW - get_etta(X_tW)
+    prob = (np.exp(arg).transpose() / np.sum(np.exp(arg), axis=1)).transpose()
+    F = np.sum(C * np.log(prob))
+    return F
+
+
+def sm_grad_w(X, W, C):
+    """
+
+    :param X:
+    :type X:
+    :param W:
+    :type W:
+    :param C:
+    :type C:
+    :return:
+    :rtype:
+    """
+    X_tW = X.transpose() @ W
+    arg = X_tW - get_etta(X_tW)
+    prob = (np.exp(arg).transpose() / np.sum(np.exp(arg), axis=1)).transpose()
+    m = len(X)
+    return (1 / m) * (X @ (prob - C))
+
+
+
 def get_etta(A: np.array):
     """""
     This method calculate the etta vector that required to reduce from A in order to prevent numerical overflow.
@@ -195,3 +234,6 @@ def generate_batch(X, Y, batch_size):
             random.shuffle(data)
         mini_batch.append(data.pop(0))
     return np.array(mini_batch)
+
+
+
