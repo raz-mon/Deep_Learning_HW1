@@ -83,9 +83,9 @@ print('plotting loss decay:\n')
 x = list(range(0, epochs))
 plt.title('GD-LLS example - Loss vs num_epoch')
 plt.xlabel('epoch')
-plt.ylabel('x value')
+plt.ylabel('loss')
 plt.plot(x, l)
-# plt.savefig('GD-LLS_example.png')
+plt.savefig('GD-LLS_example.png')
 plt.show()
 
 """
