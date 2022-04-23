@@ -43,17 +43,9 @@ expectations = [f(x) for x in xs]
 
 
 def loss(f_, data_, weights):
-    # print(list(data), "\nlen:", len(list(data)))
-    if len(list(data_)) == 0:
-        print(f'now len is 0!!@!$@!$@!$@#$@@#\nHere it is: \n{data_}')
-        raise Exception(f"Div by zero dude, this is data:\n{data_}")
+    data_list = list(data_)
+    return sum([f_(x_i, weights, y_i) for (x_i, y_i) in data_list]) / len(data_list)
 
-    else:
-        # return sum([f_(x_i, weights, y_i) for [x_i, y_i] in data_]) / len(list(data_))
-        # return sum([f_(d_i[0], weights, d_i[1]) for d_i in list(data_)])#  / len(list(data_))
-        # print('data: ', data)
-        # print('xs: ', [x[0] for x in list(data)])
-        return sum([f_(x_i, weights, y_i) for (x_i, y_i) in data_])#  / len(list(data_))
 
 
 def lls_func(x, w_, y):
@@ -78,19 +70,26 @@ def SGD(mini_loss_func, f_grad, data, expectations, mb_size, max_epochs, lr):
             grad = f_grad(x_j, weights, y_j)
             weights = weights - lr * grad
         loss_hist += [loss(mini_loss_func, zip(data, expectations), weights)]
-    return (weights, loss_hist)
+    return weights, loss_hist
 
-
-w, l = SGD(lls_func, LLS_grad, data, expectations, 1, 100, 0.01)
+epochs = 1000
+w, l = SGD(lls_func, LLS_grad, data, expectations, 1, epochs, 0.01)
 
 print('weights: \n', w)
-print('loss array:\n', l)
+print('plotting loss decay:\n')
+
+x = list(range(0, epochs))
+plt.title('GD-LLS example - Loss vs num_epoch')
+plt.xlabel('epoch')
+plt.ylabel('loss')
+plt.plot(x, l)
+# plt.savefig('GD-LLS_example.png')
+plt.show()
 
 """
-x = list(range(0, len(xs_)))
-plt.title('GD-LLS example')
-plt.xlabel('epoch')
-plt.ylabel('x value')
-plt.plot(x, xs_)
+Show a polar plot:
+fig = plt.figure()
+axes1 = fig.add_axes([0, 0, 1, 1], projection='polar')
+axes1.plot(x, l)
 plt.show()
 """
