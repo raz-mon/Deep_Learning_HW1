@@ -43,10 +43,8 @@ expectations = [f(x) for x in xs]
 
 
 def loss(f_, data_, weights):
-
     data_list = list(data_)
-    print(f'len: {len(data_list)}')
-    return sum([f_(x_i, weights, y_i) for (x_i, y_i) in data_list])  # / len(list(data_))
+    return sum([f_(x_i, weights, y_i) for (x_i, y_i) in data_list]) / len(data_list)
 
 
 
@@ -85,7 +83,7 @@ plt.title('GD-LLS example - Loss vs num_epoch')
 plt.xlabel('epoch')
 plt.ylabel('loss')
 plt.plot(x, l)
-plt.savefig('GD-LLS_example.png')
+# plt.savefig('GD-LLS_example.png')
 plt.show()
 
 """
