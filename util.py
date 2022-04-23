@@ -194,3 +194,6 @@ def generate_batch(X, Y, batch_size):
             random.shuffle(data)
         mini_batch.append(data.pop(0))
     return np.array(mini_batch)
+
+
+mb, i = functools.reduce(lambda acc, curr: [acc[0].append(curr[0]),acc[1].append(curr[1]], mb, []))
