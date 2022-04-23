@@ -47,7 +47,6 @@ def loss(f_, data_, weights):
     return sum([f_(x_i, weights, y_i) for (x_i, y_i) in data_list]) / len(data_list)
 
 
-
 def lls_func(x, w_, y):
     return (1 / 2) * (np.transpose(x) @ w_ - y) ** 2
 

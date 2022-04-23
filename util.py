@@ -1,6 +1,7 @@
 import random
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 """
 Here we'll put our utility functions (SGD, derivatives etc.).
@@ -102,6 +103,45 @@ def soft_max_regression(X: np.array, W: np.array, C: np.array):
     return F, grad_W, grad_X, grad_b
 
 
+def sm_loss(X, W, C):
+    """
+
+    :param X:
+    :type X:
+    :param W:
+    :type W:
+    :param C:
+    :type C:
+    :return:
+    :rtype:
+    """
+    X_tW = X.transpose() @ W
+    arg = X_tW - get_etta(X_tW)
+    prob = (np.exp(arg).transpose() / np.sum(np.exp(arg), axis=1)).transpose()
+    F = np.sum(C * np.log(prob))
+    return F
+
+
+def sm_grad_w(X, W, C):
+    """
+
+    :param X:
+    :type X:
+    :param W:
+    :type W:
+    :param C:
+    :type C:
+    :return:
+    :rtype:
+    """
+    X_tW = X.transpose() @ W
+    arg = X_tW - get_etta(X_tW)
+    prob = (np.exp(arg).transpose() / np.sum(np.exp(arg), axis=1)).transpose()
+    m = len(X)
+    return (1 / m) * (X @ (prob - C))
+
+
+
 def get_etta(A: np.array):
     """""
     This method calculate the etta vector that required to reduce from A in order to prevent numerical overflow.
@@ -196,4 +236,50 @@ def generate_batch(X, Y, batch_size):
     return np.array(mini_batch)
 
 
-mb, i = functools.reduce(lambda acc, curr: [acc[0].append(curr[0]),acc[1].append(curr[1]], mb, []))
+def generate_batchs(X, C, mb_size):
+    """
+
+    :param X:
+    :type X:
+    :param C:
+    :type C:
+    :param mb_size:
+    :type mb_size:
+    :return:
+    :rtype:
+    """
+    data = []
+    mb = []
+    mbs = []
+    # Generate 'data' - An array containing 2-component arrays of [data, indicator].
+    for i in range(len(X)):
+        data.append([X[i], C[i]])      # C[i] is the i'th row, corresponding to the i'th data-sample (it's indicator).
+
+    while data:
+        for i in range(mb_size):
+            if i % 50 == 0:
+                random.shuffle(data)
+            if data:
+                mb.append(data.pop(0))
+        """
+        Mb: Array of size nXmb_size.
+        Indicator: Matrix of size lXmb_size
+        """
+        Mb = np.array([x[0] for x in mb])
+        Indicator = np.array([np.array(x[1]).T for x in mb])
+        mbs += [(Mb, Indicator)]
+
+    return np.array(mbs)
+
+
+
+
+
+
+
+
+
+
+
+
+
