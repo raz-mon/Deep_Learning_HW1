@@ -236,4 +236,50 @@ def generate_batch(X, Y, batch_size):
     return np.array(mini_batch)
 
 
+def generate_batchs(X, C, mb_size):
+    """
+
+    :param X:
+    :type X:
+    :param C:
+    :type C:
+    :param mb_size:
+    :type mb_size:
+    :return:
+    :rtype:
+    """
+    data = []
+    mb = []
+    mbs = []
+    # Generate 'data' - An array containing 2-component arrays of [data, indicator].
+    for i in range(len(X)):
+        data.append([X[i], C[i]])      # C[i] is the i'th row, corresponding to the i'th data-sample (it's indicator).
+
+    while data:
+        for i in range(mb_size):
+            if i % 50 == 0:
+                random.shuffle(data)
+            if data:
+                mb.append(data.pop(0))
+        """
+        Mb: Array of size nXmb_size.
+        Indicator: Matrix of size lXmb_size
+        """
+        Mb = np.array([x[0] for x in mb])
+        Indicator = np.array([np.array(x[1]).T for x in mb])
+        mbs += [(Mb, Indicator)]
+
+    return np.array(mbs)
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -34,26 +34,34 @@ def SGD_for_Softmax(loss_func, loss_func_grad, X, C, mb_size, max_epochs, lr):
 
     for k in range(max_epochs):
         # Partition the data to random mini-batches of size mb_size.
-        mbs, indicators = util.generate_batchs(X, C, mb_size)
+        bchs = util.generate_batchs(X, C, mb_size)
         num_of_mbs = int(m / mb_size)
         for i in range(num_of_mbs):
-            curr_mb_xs = mbs[i]
-            curr_indicator = indicators[i]
+            curr_mb_xs = bchs[i][0]
+            curr_indicator = bchs[i][1]
+            if len(curr_mb_xs) != mb_size:
+                break
             # curr_indicator is a matrix of size mb_size X l.
             grad = loss_func_grad(curr_mb_xs, W, curr_indicator)
             W = W - lr * grad
-        loss += [loss_func(X, W, C)]
+        if len(curr_mb_xs) != mb_size:
+            loss += [loss_func(X, W, C)]
     return W, loss
 
 mat = read_mat('Data/SwissRollData.mat')
-X = pd.DataFrame(mat['Yt']).to_numpy()
+X = (pd.DataFrame(mat['Yt']).to_numpy()).T
 C = (pd.DataFrame(mat['Ct']).to_numpy()).T
+# C = pd.DataFrame(mat['Ct']).to_numpy()
+
+print('X: ', X.shape)
+print('C: ', C.shape)
+
 mb_size = 15
 max_epochs = 10
 lr = 0.01
-SGD_for_Softmax(util.sm_loss, util.sm_grad_w, X, C, mb_size, max_epochs, lr)
+W, loss = SGD_for_Softmax(util.sm_loss, util.sm_grad_w, X, C, mb_size, max_epochs, lr)
 
-
+print(loss)
 
 
 
