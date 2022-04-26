@@ -57,7 +57,7 @@ def main():
     C = np.zeros((5, 3))
     for row in C:
         row[np.random.randint(0, len(row))] = 1
-    print(util.gradient_test_X(X, W, C))
+    print(util.gradient_test_W(X, W, C))
 
 
 if __name__ == "__main__":

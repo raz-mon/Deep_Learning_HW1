@@ -2,8 +2,7 @@ import numpy as np
 import util
 from pymatreader import read_mat
 import pandas as pd
-
-
+import matplotlib.pyplot as plt
 
 x = np.array([[1, 2], [2, 3], [3, 4]])
 print(f'x1 stuff')
@@ -22,9 +21,6 @@ x2 = np.array([np.array([1, 2]).T, np.array([2, 3]).T, np.array([3, 4]).T])
 print('x2: \n', x2)
 print('x2 shape: \n', x2.shape)
 print('x2.T: \n', x2.T)
-
-
-
 
 
 
