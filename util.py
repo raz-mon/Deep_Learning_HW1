@@ -7,8 +7,6 @@ import numpy as np
 Here we'll put our utility functions (SGD, derivatives etc.).
 """
 
-import numpy as np
-
 
 class SGD:
     """Optimize a function using Stochastic Gradient Descent"""
