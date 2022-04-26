@@ -2,6 +2,7 @@ import numpy as np
 import util
 from pymatreader import read_mat
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def SGD_for_Softmax(loss_func, loss_func_grad, X, C, mb_size, max_epochs, lr):
@@ -24,52 +25,75 @@ def SGD_for_Softmax(loss_func, loss_func_grad, X, C, mb_size, max_epochs, lr):
     :return:
     :rtype:
     """
-
-    m = len(X)
-    n = len(X[0])
-    l = len(C)
-
+    n = len(X)
+    l = len(C[0])
     loss = []
-    W = np.random.uniform(0, 1, (n, l))
-
+    W = np.random.uniform(-5, 5, (n, l))
+    print('X: ', X.shape)
+    print('W: ', W.shape)
+    print('C: ', C.shape)
     for k in range(max_epochs):
+        bchs = util.generate_batches(X.T, C, mb_size)
         # Partition the data to random mini-batches of size mb_size.
-        bchs = util.generate_batchs(X, C, mb_size)
-        num_of_mbs = int(m / mb_size)
-        for i in range(num_of_mbs):
-            curr_mb_xs = bchs[i][0]
-            curr_indicator = bchs[i][1]
-            if len(curr_mb_xs) != mb_size:
-                break
-            # curr_indicator is a matrix of size mb_size X l.
-            grad = loss_func_grad(curr_mb_xs, W, curr_indicator)
-            W = W - lr * grad
-        if len(curr_mb_xs) != mb_size:
-            loss += [loss_func(X, W, C)]
+        for curr_Mb, curr_Ind in bchs:
+            # curr_Mb is a matrix of size n X mb_size.
+            # curr_Ind is a matrix of size mb_size X l.
+            grad = loss_func_grad(curr_Mb, W, curr_Ind)
+            W -= lr * grad
+        loss.append(loss_func(X, W, C))
     return W, loss
+
 
 mat = read_mat('Data/SwissRollData.mat')
 X = (pd.DataFrame(mat['Yt']).to_numpy()).T
 C = (pd.DataFrame(mat['Ct']).to_numpy()).T
 # C = pd.DataFrame(mat['Ct']).to_numpy()
 
+X = np.random.rand(*X.shape).T
+X /= np.linalg.norm(X)
+
+n = len(X)
+l = len(C[0])
+W = np.random.uniform(-1, 1, (n, l))
+
 print('X: ', X.shape)
 print('C: ', C.shape)
 
-mb_size = 15
+mb_size = 500
 max_epochs = 10
-lr = 0.01
-W, loss = SGD_for_Softmax(util.sm_loss, util.sm_grad_w, X, C, mb_size, max_epochs, lr)
+lr = 0.1
+# util.gradient_test_W(X, W, C)
 
+W, loss = SGD_for_Softmax(util.sm_loss, util.sm_grad_w, X, C, mb_size, max_epochs, lr)
+vec = list(range(len(loss)))
+
+plt.rc("font", size=16, family="Times New Roman")
+fig = plt.figure(figsize=(10, 6))
+ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+ax.plot(vec, loss, label="SoftMax SGD")
+ax.set_xlabel("index", fontdict={"size": 21})
+ax.set_ylabel("loss", fontdict={"size": 21})
+plt.grid(True)
+plt.title("SGD Test")
+plt.legend()
+plt.show()
 print(loss)
 
 
+x = np.array([[1, 2], [2, 3], [3, 4]])
+print(f'x1 stuff')
+print('x: ', x)
 
 
+print('x shape: \n', x.shape)
+print('x[0] shape: \n', x[0].shape)
+print('x.T: \n', x.T, '\n')
+print(f'x sum axis 0: \n{np.sum(x, axis=0)}\n')
+print(f'x sum axis 1: \n{np.sum(x, axis=1).reshape(-1,1).shape}\n')
 
 
-
-
-
-
-
+print(f'\n\n\nx2 stuff:')
+x2 = np.array([np.array([1, 2]).T, np.array([2, 3]).T, np.array([3, 4]).T])
+print('x2: \n', x2)
+print('x2 shape: \n', x2.shape)
+print('x2.T: \n', x2.T)
