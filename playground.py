@@ -45,12 +45,12 @@ def SGD_for_Softmax(loss_func, loss_func_grad, X, C, mb_size, max_epochs, lr):
 
 
 mat = read_mat('Data/SwissRollData.mat')
-X = (pd.DataFrame(mat['Yt']).to_numpy()).T
+X = (pd.DataFrame(mat['Yt']).to_numpy())
 C = (pd.DataFrame(mat['Ct']).to_numpy()).T
 # C = pd.DataFrame(mat['Ct']).to_numpy()
 
-X = np.random.rand(*X.shape).T
-X /= np.linalg.norm(X)
+#X = np.random.rand(*X.shape).T
+#X /= np.linalg.norm(X)
 
 n = len(X)
 l = len(C[0])
@@ -60,11 +60,11 @@ print('X: ', X.shape)
 print('C: ', C.shape)
 
 mb_size = 500
-max_epochs = 10
-lr = 0.1
+max_epochs = 50
+lr = 0.01
 # util.gradient_test_W(X, W, C)
 
-W, loss = SGD_for_Softmax(util.sm_loss, util.sm_grad_w, X, C, mb_size, max_epochs, lr)
+_, loss = SGD_for_Softmax(util.sm_loss, util.sm_grad_w, X, C, mb_size, max_epochs, lr)
 vec = list(range(len(loss)))
 
 plt.rc("font", size=16, family="Times New Roman")
@@ -79,21 +79,3 @@ plt.legend()
 plt.show()
 print(loss)
 
-
-x = np.array([[1, 2], [2, 3], [3, 4]])
-print(f'x1 stuff')
-print('x: ', x)
-
-
-print('x shape: \n', x.shape)
-print('x[0] shape: \n', x[0].shape)
-print('x.T: \n', x.T, '\n')
-print(f'x sum axis 0: \n{np.sum(x, axis=0)}\n')
-print(f'x sum axis 1: \n{np.sum(x, axis=1).reshape(-1,1).shape}\n')
-
-
-print(f'\n\n\nx2 stuff:')
-x2 = np.array([np.array([1, 2]).T, np.array([2, 3]).T, np.array([3, 4]).T])
-print('x2: \n', x2)
-print('x2 shape: \n', x2.shape)
-print('x2.T: \n', x2.T)
