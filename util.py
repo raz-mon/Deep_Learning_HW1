@@ -1,13 +1,11 @@
 import random
-
+import functools
 import matplotlib.pyplot as plt
 import numpy as np
 
 """
 Here we'll put our utility functions (SGD, derivatives etc.).
 """
-
-import numpy as np
 
 
 class SGD:
@@ -93,10 +91,10 @@ def soft_max_regression(X: np.array, W: np.array, C: np.array):
         :return the loss function, and the gradients with respect to X,W.
     """""
     X_tW = X.transpose() @ W
-    arg = X_tW - get_etta(X_tW)
-    prob = (np.exp(arg).transpose() / np.sum(np.exp(arg), axis=1)).transpose()
-    F = np.sum(C * np.log(prob))
-    m = len(X)
+    arg = X_tW - etta(X_tW)
+    prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
+    m = len(X.T)
+    F = - (1 / m) * np.sum(C * np.log(prob))
     grad_W = (1 / m) * (X @ (prob - C))
     grad_X = (1 / m) * (W @ (prob - C).T)
     grad_b = (1 / m) * np.sum((prob - C), axis=1).reshape(-1, 1)
@@ -105,7 +103,6 @@ def soft_max_regression(X: np.array, W: np.array, C: np.array):
 
 def sm_loss(X, W, C):
     """
-
     :param X:
     :type X:
     :param W:
@@ -115,16 +112,16 @@ def sm_loss(X, W, C):
     :return:
     :rtype:
     """
-    X_tW = X.transpose() @ W
-    arg = X_tW - get_etta(X_tW)
-    prob = (np.exp(arg).transpose() / np.sum(np.exp(arg), axis=1)).transpose()
-    F = np.sum(C * np.log(prob))
+    m = len(X.T)
+    X_tW = X.T @ W
+    arg = X_tW - etta(X_tW)
+    prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
+    F = - (1 / m) * np.sum(C * np.log(prob))
     return F
 
 
 def sm_grad_w(X, W, C):
     """
-
     :param X:
     :type X:
     :param W:
@@ -134,15 +131,14 @@ def sm_grad_w(X, W, C):
     :return:
     :rtype:
     """
-    X_tW = X.transpose() @ W
-    arg = X_tW - get_etta(X_tW)
-    prob = (np.exp(arg).transpose() / np.sum(np.exp(arg), axis=1)).transpose()
-    m = len(X)
+    X_tW = X.T @ W
+    arg = X_tW - etta(X_tW)
+    prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
+    m = len(X.T)
     return (1 / m) * (X @ (prob - C))
 
 
-
-def get_etta(A: np.array):
+def etta(A: np.array):
     """""
     This method calculate the etta vector that required to reduce from A in order to prevent numerical overflow.
     :return etta vector. this vector is the column with the maximal norm from A.
@@ -187,15 +183,20 @@ def gradient_test_W(X: np.array, W: np.array, C: np.array):
     """""
     V = np.random.rand(W.shape[0], W.shape[1])
     d = (V / np.linalg.norm(V))
+    d_vector = d.reshape(-1, 1)
     err_1 = []
     err_2 = []
     ks = []
-    for k in range(1, 10):
+    f_x, grad_W, _, _ = soft_max_regression(W @ X, W, C)
+
+    grad_W = grad_W.reshape(-1, 1)
+    for k in range(1, 25):
         epsilon = 0.5 ** k
-        f_x, grad_W, _, _ = soft_max_regression(X, W, C)
-        f_x_d, grad_W_d, _, _ = soft_max_regression(X, W + epsilon * d, C)
+        W_new = W + epsilon * d
+        X_new = W_new @ X
+        f_x_d, _, _, _ = soft_max_regression(X_new, W_new, C)
         err_1.append(abs(f_x_d - f_x))
-        err_2.append(abs(f_x_d - f_x - epsilon * (d.reshape(1, -1) @ grad_W.reshape(-1, 1))[0][0]))
+        err_2.append(abs(f_x_d - f_x - (epsilon * d_vector.T @ grad_W)[0][0]))
         ks.append(k)
     print_grad_test(ks, err_1, err_2, "$\delta W$")
 
@@ -236,9 +237,8 @@ def generate_batch(X, Y, batch_size):
     return np.array(mini_batch)
 
 
-def generate_batchs(X, C, mb_size):
+def generate_batches(X, C, mb_size):
     """
-
     :param X:
     :type X:
     :param C:
@@ -253,33 +253,18 @@ def generate_batchs(X, C, mb_size):
     mbs = []
     # Generate 'data' - An array containing 2-component arrays of [data, indicator].
     for i in range(len(X)):
-        data.append([X[i], C[i]])      # C[i] is the i'th row, corresponding to the i'th data-sample (it's indicator).
-
-    while data:
+        data.append([X[i], C[i]])  # C[i] is the i'th row, corresponding to the i'th data-sample (it's indicator).
+    indices = list(range(len(data)))
+    random.shuffle(indices)
+    while len(indices) > mb_size:
         for i in range(mb_size):
-            if i % 50 == 0:
-                random.shuffle(data)
-            if data:
-                mb.append(data.pop(0))
+            mb.append(data[indices.pop()])
         """
         Mb: Array of size nXmb_size.
         Indicator: Matrix of size lXmb_size
         """
-        Mb = np.array([x[0] for x in mb])
-        Indicator = np.array([np.array(x[1]).T for x in mb])
-        mbs += [(Mb, Indicator)]
+        Mb, Indicator = functools.reduce(lambda acc, curr: [acc[0] + [curr[0]], acc[1] + [curr[1]]], mb, [[], []])
+        mb = []
+        mbs += [(np.array(Mb).T, np.array(Indicator))]
 
-    return np.array(mbs)
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return mbs
