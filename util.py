@@ -103,7 +103,6 @@ def soft_max_regression(X: np.array, W: np.array, C: np.array):
 
 def sm_loss(X, W, C):
     """
-
     :param X:
     :type X:
     :param W:
@@ -123,7 +122,6 @@ def sm_loss(X, W, C):
 
 def sm_grad_w(X, W, C):
     """
-
     :param X:
     :type X:
     :param W:
@@ -222,7 +220,6 @@ def print_grad_test(k, err_1, err_2, title):
 
 def generate_batches(X, C, mb_size):
     """
-
     :param X:
     :type X:
     :param C:

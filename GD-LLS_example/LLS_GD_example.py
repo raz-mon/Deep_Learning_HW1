@@ -23,12 +23,12 @@ for i in range(len(xs)):
     else:
         ys += [ys_2[i]]
 
-"""
+
 plt.figure()
 plt.scatter(xs, ys)
 plt.plot(xs, ys)
 plt.show()
-"""
+
 
 
 """
@@ -55,7 +55,7 @@ def lls_func(x, w_, y):
 def LLS_grad(x, w_, y):
     return (np.transpose(x) @ w_ - y) * x
 
-
+# Todo: Add random pick of data (take from util). Maybe check a harder problem ?
 # data: [[np.array([x**2, x, 1]).T, expectation (f(x))], ...]
 def SGD(mini_loss_func, f_grad, data, expectations, mb_size, max_epochs, lr):
     loss_hist = []
