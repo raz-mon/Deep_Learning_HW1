@@ -220,25 +220,6 @@ def print_grad_test(k, err_1, err_2, title):
     plt.show()
 
 
-def generate_batch(X, Y, batch_size):
-    """""
-    Mini batch from data.
-    :param X matrix. Represents the i's data point from the data.
-    :param Y matrix. Represent the i's classification of data i'.
-    :param batch_size. mini batch size desired.
-    :return A random mini batch with size batch_size.
-    """""
-    data = []
-    for i in range(len(X)):
-        data.append([X[i], Y[i]])
-    mini_batch = []
-    for i in range(batch_size):
-        if i % 50 == 0:
-            random.shuffle(data)
-        mini_batch.append(data.pop(0))
-    return np.array(mini_batch)
-
-
 def generate_batches(X, C, mb_size):
     """
 
