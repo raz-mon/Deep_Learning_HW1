@@ -82,7 +82,7 @@ class SGD:
 
 
 # Todo: biases for this part.
-def soft_max_regression(X: np.array, W: np.array, C: np.array):
+def soft_max_regression(X: np.array, W: np.array, C: np.array, b: np.array = None):
     """""
     Computing the loss function 'Soft-Max regression'.
         :param X. The data input as a matrix of size nXm
@@ -150,30 +150,7 @@ def etta(A: np.array):
     return etta.reshape(-1, 1)
 
 
-def gradient_test_X(X: np.array, W: np.array, C: np.array):
-    """""
-    Gradient test with respect for X.
-    :param X matrix.
-    :param W matrix.
-    :param C matrix.
-    :return matplotlib graph which shows the gradiant test.
-    """""
-    V = np.random.rand(X.shape[0], X.shape[1])
-    d = (V / np.linalg.norm(V))
-    err_1 = []
-    err_2 = []
-    ks = []
-    for k in range(1, 10):
-        epsilon = 0.5 ** k
-        f_x, _, grad_X, _ = soft_max_regression(X, W, C)
-        f_x_d, _, grad_X_d, _ = soft_max_regression(X + epsilon * d, W, C)
-        err_1.append(abs(f_x_d - f_x))
-        err_2.append(abs(f_x_d - f_x - epsilon * (d.reshape(1, -1) @ grad_X.reshape(-1, 1))[0][0]))
-        ks.append(k)
-    print_grad_test(ks, err_1, err_2, "$\delta X$")
-
-
-def gradient_test_W(X: np.array, W: np.array, C: np.array):
+def gradient_test(X: np.array, W: np.array, C: np.array, b: np.array, policy):
     """""
     Gradient test with respect for W.
     :param X matrix.
@@ -181,24 +158,26 @@ def gradient_test_W(X: np.array, W: np.array, C: np.array):
     :param C matrix.
     :return matplotlib graph which shows the gradiant test.
     """""
-    V = np.random.rand(W.shape[0], W.shape[1])
+    dict_num = {"W": 1, "X": 2, "b": 3}
+    dict_param = {"W": W, "X": X, "b": b}
+    dict_name = {"W": "$\delta W$", "X": "$\delta X$", "b": "$\delta b$"}
+    V = np.random.rand(dict_param[policy].shape[0], dict_param[policy].shape[1])
     d = (V / np.linalg.norm(V))
     d_vector = d.reshape(-1, 1)
     err_1 = []
     err_2 = []
     ks = []
-    f_x, grad_W, _, _ = soft_max_regression(W @ X, W, C)
-
-    grad_W = grad_W.reshape(-1, 1)
-    for k in range(1, 25):
+    params = soft_max_regression(X, W, C)
+    grad = params[dict_num[policy]].reshape(-1, 1)
+    for k in range(1, 20):
         epsilon = 0.5 ** k
-        W_new = W + epsilon * d
-        X_new = W_new @ X
-        f_x_d, _, _, _ = soft_max_regression(X_new, W_new, C)
-        err_1.append(abs(f_x_d - f_x))
-        err_2.append(abs(f_x_d - f_x - (epsilon * d_vector.T @ grad_W)[0][0]))
+        new = dict_param[policy] + epsilon * d
+        dict_args = {"W": (X, new, C, b), "X": (new, W, C, b), "b": (X, W, C, new)}
+        f_x_d, _, _, _ = soft_max_regression(*dict_args[policy])
+        err_1.append(abs(f_x_d - params[0]))
+        err_2.append(abs(f_x_d - params[0] - (epsilon * d_vector.T @ grad)[0][0]))
         ks.append(k)
-    print_grad_test(ks, err_1, err_2, "$\delta W$")
+    print_grad_test(ks, err_1, err_2, dict_name[policy])
 
 
 def print_grad_test(k, err_1, err_2, title):
