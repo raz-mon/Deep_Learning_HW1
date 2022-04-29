@@ -4,7 +4,8 @@ from pymatreader import read_mat
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def SGD_for_Softmax(loss_func, loss_func_grad, X, C, mb_size, max_epochs, lr):
+
+def SGD_for_Softmax(loss_func, loss_func_grad, X, W, C, mb_size, max_epochs, lr):
     """
     Perform SGD on the on the softmax function.
     :param loss_func:
@@ -27,7 +28,7 @@ def SGD_for_Softmax(loss_func, loss_func_grad, X, C, mb_size, max_epochs, lr):
     n = len(X)
     l = len(C[0])
     loss = []
-    W = np.random.uniform(-5, 5, (n, l))
+    # W = np.random.uniform(-5, 5, (n, l))
     print('X: ', X.shape)
     print('W: ', W.shape)
     print('C: ', C.shape)
@@ -46,27 +47,39 @@ def SGD_for_Softmax(loss_func, loss_func_grad, X, C, mb_size, max_epochs, lr):
 mat = read_mat('Data/SwissRollData.mat')
 X = (pd.DataFrame(mat['Yt']).to_numpy())
 C = (pd.DataFrame(mat['Ct']).to_numpy()).T
+# C = pd.DataFrame(mat['Ct']).to_numpy()
+
+#X = np.random.rand(*X.shape).T
+#X /= np.linalg.norm(X)
+
+n = len(X)
+l = len(C[0])
+W = np.random.uniform(-5, 5, (n, l))
 
 print('X: ', X.shape)
 print('C: ', C.shape)
 
+# util.gradient_test_W(X, W, C)
+
 mb_size = 500
 max_epochs = 100
-lr = 0.01
-W_, loss = SGD_for_Softmax(util.sm_loss, util.sm_grad_w, X, C, mb_size, max_epochs, lr)
+losses = []
+epochs = list(range(max_epochs))
+lrs = [i / 100 for i in range(1, 9)]
+for lr in lrs:
+    _, loss = SGD_for_Softmax(util.sm_loss, util.sm_grad_w, X, W.copy(), C, mb_size, max_epochs, lr)
+    losses.append(loss)
 
-print(loss)
-
-vec = list(range(len(loss)))
+fmt = ["", "b", "g", "r", "c", "m", "y", "k"]
 plt.rc("font", size=16, family="Times New Roman")
 fig = plt.figure(figsize=(10, 6))
 ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
-ax.plot(vec, loss, label="SoftMax SGD")
-ax.set_xlabel("index", fontdict={"size": 21})
-ax.set_ylabel("loss", fontdict={"size": 21})
+for i, loss in enumerate(losses):
+    ax.plot(epochs, loss, fmt[i], label=f"learning rate: {lrs[i]}")
+
+ax.set_xlabel("Epoch number", fontdict={"size": 21})
+ax.set_ylabel("Loss", fontdict={"size": 21})
 plt.grid(True)
-plt.title("SGD Test")
+plt.title("SGD Test: Softmax")
 plt.legend()
 plt.show()
-
-
