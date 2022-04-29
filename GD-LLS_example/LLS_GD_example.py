@@ -1,8 +1,6 @@
 import numpy as np
-import numpy.linalg as LA
 import random
 import matplotlib.pyplot as plt
-from util import SGD
 
 xs = np.arange(-1, 1, 0.1)
 ys = []

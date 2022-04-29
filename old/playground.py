@@ -1,10 +1,5 @@
+import util_old
 import numpy as np
-import util
-from pymatreader import read_mat
-import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-import util
 from pymatreader import read_mat
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -49,7 +44,7 @@ def SGD_for_Softmax(loss_func, loss_func_grad, X, W, C, mb_size, max_epochs, lr)
     return W, loss
 
 
-mat = read_mat('Data/SwissRollData.mat')
+mat = read_mat('../Data/SwissRollData.mat')
 X = (pd.DataFrame(mat['Yt']).to_numpy())
 C = (pd.DataFrame(mat['Ct']).to_numpy()).T
 # C = pd.DataFrame(mat['Ct']).to_numpy()
@@ -91,7 +86,7 @@ plt.show()
 
 
 
-mat = read_mat('Data/SwissRollData.mat')
+mat = read_mat('../Data/SwissRollData.mat')
 X = (pd.DataFrame(mat['Yt']).to_numpy())
 C = (pd.DataFrame(mat['Ct']).to_numpy()).T
 # C = pd.DataFrame(mat['Ct']).to_numpy()
