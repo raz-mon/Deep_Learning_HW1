@@ -26,4 +26,4 @@ W = np.random.uniform(-5, 5, (n, l))
 print('X: ', X.shape)
 print('C: ', C.shape)
 
-util.gradient_test(new_X, W, new_C, None, "W")
+util.gradient_test(new_X, W, new_C, None, "X")

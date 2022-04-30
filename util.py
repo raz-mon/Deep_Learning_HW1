@@ -90,7 +90,7 @@ def soft_max_regression(X: np.array, W: np.array, C: np.array, b: np.array = Non
         :param C. Indicators matrix. size of mXl.
         :return the loss function, and the gradients with respect to X,W.
     """""
-    X_tW = X.transpose() @ W
+    X_tW = X.T @ W
     arg = X_tW - etta(X_tW)
     prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
     m = len(X.T)

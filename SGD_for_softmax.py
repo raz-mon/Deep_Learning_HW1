@@ -45,8 +45,8 @@ def SGD_for_Softmax(loss_func, loss_func_grad, X, W, C, mb_size, max_epochs, lr)
 
 
 mat = read_mat('Data/SwissRollData.mat')
-X = (pd.DataFrame(mat['Yt']).to_numpy())
-C = (pd.DataFrame(mat['Ct']).to_numpy()).T
+X = (pd.DataFrame(mat['Yv']).to_numpy())
+C = (pd.DataFrame(mat['Cv']).to_numpy()).T
 # C = pd.DataFrame(mat['Ct']).to_numpy()
 
 #X = np.random.rand(*X.shape).T
@@ -80,6 +80,6 @@ for i, loss in enumerate(losses):
 ax.set_xlabel("Epoch number", fontdict={"size": 21})
 ax.set_ylabel("Loss", fontdict={"size": 21})
 plt.grid(True)
-plt.title("SGD Test: Softmax")
+plt.title("SGD Test: Softmax - Validation Data ")
 plt.legend()
 plt.show()
