@@ -84,7 +84,7 @@ plt.title("SGD Test: Softmax")
 plt.legend()
 plt.show()
 """
-
+"""
 
 mat = read_mat('../Data/SwissRollData.mat')
 X = (pd.DataFrame(mat['Yt']).to_numpy())
@@ -109,3 +109,36 @@ print('X: ', X.shape)
 print('C: ', C.shape)
 
 util_old.gradient_test(new_X, W, new_C, None, "W")
+"""
+
+mat = read_mat('../Data/SwissRollData.mat')
+X = (pd.DataFrame(mat['Yv']).to_numpy())
+C = (pd.DataFrame(mat['Cv']).to_numpy()).T
+# C = pd.DataFrame(mat['Ct']).to_numpy()
+
+n = len(X)
+l = len(C[0])
+W = np.random.uniform(-5, 5, (n, l))
+
+mbs_size = [i * 100 for i in range(1, 9)]
+max_epochs = 100
+losses = []
+lr = 0.08
+epochs = list(range(max_epochs))
+for mb_size in mbs_size:
+    _, loss = SGD_for_Softmax(util_old.sm_loss, util_old.sm_grad_w, X, W.copy(), C, mb_size, max_epochs, lr)
+    losses.append(loss)
+
+fmt = ["", "b", "g", "r", "c", "m", "y", "k"]
+plt.rc("font", size=16, family="Times New Roman")
+fig = plt.figure(figsize=(10, 6))
+ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+for i, loss in enumerate(losses):
+    ax.plot(epochs, loss, fmt[i], label=f"mini-batch size: {mbs_size[i]}")
+
+ax.set_xlabel("Epoch number", fontdict={"size": 21})
+ax.set_ylabel("Loss", fontdict={"size": 21})
+plt.grid(True)
+plt.title("SGD Test: Softmax - Validation Data, different mini-batches size")
+plt.legend()
+plt.show()
