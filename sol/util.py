@@ -48,6 +48,7 @@ def generate_batches(X, C, mb_size):
     return mbs
 
 
+
 def sm_loss(X, W, C):
     """
     :param X:
@@ -130,33 +131,4 @@ def print_grad_test(k, err_1, err_2, title):
     plt.title("Gradiant Test: " + title)
     plt.legend()
     plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

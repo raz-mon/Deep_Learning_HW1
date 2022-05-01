@@ -51,6 +51,7 @@ class Layer:
 class SoftmaxLayer(Layer):
     """The last layer of a classifying Neural Network, implementing the soft-max function"""
     def __init__(self, X, W, b, C, activation=ReLU):
+
         """
 
         :param self:
@@ -62,6 +63,7 @@ class SoftmaxLayer(Layer):
         :return:
         :rtype:
         """
+
         super().__init__(X, W, b)
         self.C = C
         self.activation = lambda x: x
@@ -93,14 +95,6 @@ class ResNetLayer:
     def __init__(self, W1, W2, b1, b2, C, X, W, b):
         # TBD..
         return None
-
-
-
-
-
-
-
-
 
 
 
