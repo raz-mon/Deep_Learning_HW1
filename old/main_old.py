@@ -1,3 +1,9 @@
+import numpy as np
+import util_old
+
+
+
+
 """ Part 1"""
 # Todo: Write code for the loss function and it's gradient with respect to the wieghts and biases.
 #  Make sure it's correct with the gradient and Jacobian verification test.
@@ -47,8 +53,6 @@
 
 # Todo: Repeat the previous section, only now use only 200 data points for training (sample
 #  them randomly). How do the results change, if at all?
-import numpy as np
-import util
 
 
 def main():
@@ -57,7 +61,7 @@ def main():
     C = np.zeros((5, 3))
     for row in C:
         row[np.random.randint(0, len(row))] = 1
-    print(util.gradient_test_W(X, W, C))
+    print(util_old.gradient_test_W(X, W, C))
 
 
 if __name__ == "__main__":
