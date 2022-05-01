@@ -33,7 +33,7 @@ def SGD_for_Softmax(loss_func, loss_func_grad, X, W, C, mb_size, max_epochs, lr)
     print('W: ', W.shape)
     print('C: ', C.shape)
     for k in range(max_epochs):
-        bchs = util.generate_batches(X.T, C, mb_size)
+        bchs = util_old.generate_batches(X.T, C, mb_size)
         # Partition the data to random mini-batches of size mb_size.
         for curr_Mb, curr_Ind in bchs:
             # curr_Mb is a matrix of size n X mb_size.
@@ -43,7 +43,7 @@ def SGD_for_Softmax(loss_func, loss_func_grad, X, W, C, mb_size, max_epochs, lr)
         loss.append(loss_func(X, W, C))
     return W, loss
 
-
+"""
 mat = read_mat('../Data/SwissRollData.mat')
 X = (pd.DataFrame(mat['Yt']).to_numpy())
 C = (pd.DataFrame(mat['Ct']).to_numpy()).T
@@ -67,7 +67,7 @@ losses = []
 epochs = list(range(max_epochs))
 lrs = [i / 100 for i in range(1, 9)]
 for lr in lrs:
-    _, loss = SGD_for_Softmax(util.sm_loss, util.sm_grad_w, X, W.copy(), C, mb_size, max_epochs, lr)
+    _, loss = SGD_for_Softmax(util_old.sm_loss, util_old.sm_grad_w, X, W.copy(), C, mb_size, max_epochs, lr)
     losses.append(loss)
 
 fmt = ["", "b", "g", "r", "c", "m", "y", "k"]
@@ -83,7 +83,7 @@ plt.grid(True)
 plt.title("SGD Test: Softmax")
 plt.legend()
 plt.show()
-
+"""
 
 
 mat = read_mat('../Data/SwissRollData.mat')
@@ -98,7 +98,7 @@ C = (pd.DataFrame(mat['Ct']).to_numpy()).T
 # util.gradient_test_W(X, W, C)
 
 mb_size = 500
-bchs = util.generate_batches(X.T, C, mb_size)
+bchs = util_old.generate_batches(X.T, C, mb_size)
 new_X, new_C = bchs[0]
 
 n = len(X)
@@ -108,4 +108,4 @@ W = np.random.uniform(-5, 5, (n, l))
 print('X: ', X.shape)
 print('C: ', C.shape)
 
-util.gradient_test(new_X, W, new_C, None, "W")
+util_old.gradient_test(new_X, W, new_C, None, "W")
