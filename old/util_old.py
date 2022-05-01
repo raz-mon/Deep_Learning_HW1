@@ -7,6 +7,7 @@ import numpy as np
 Here we'll put our utility functions (SGD, derivatives etc.).
 """
 
+
 # Todo: biases for this part.
 def soft_max_regression(X: np.array, W: np.array, C: np.array, b: np.array = None):
     """""
@@ -23,7 +24,7 @@ def soft_max_regression(X: np.array, W: np.array, C: np.array, b: np.array = Non
     F = - (1 / m) * np.sum(C * np.log(prob))
     grad_W = (1 / m) * (X @ (prob - C))
     grad_X = (1 / m) * (W @ (prob - C).T)
-    grad_b = [] # ?
+    grad_b = []  # ?
     return F, grad_W, grad_X, grad_b
 
 
@@ -69,10 +70,9 @@ def etta(A: np.array):
     This method calculate the etta vector that required to reduce from A in order to prevent numerical overflow.
     :return etta vector. this vector is the column with the maximal norm from A.
     """""
-    etta = A.T[0]
-    for a in A.T:
-        if np.linalg.norm(a) > np.linalg.norm(etta):
-            etta = a
+    etta = np.array([])
+    for a in A:
+        etta = np.append(etta, max(a))
     return etta.reshape(-1, 1)
 
 
