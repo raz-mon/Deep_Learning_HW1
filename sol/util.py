@@ -19,7 +19,7 @@ def soft_max_regression(X: np.array, W: np.array, C: np.array, b: np.array = Non
     F = - (1 / m) * np.sum(C * np.log(prob))
     grad_W = (1 / m) * (X @ (prob - C))
     grad_X = (1 / m) * (W @ (prob - C).T)
-    grad_b = [] # ?
+    grad_b = (1 / m) * np.sum((prob - C), axis=1).reshape(-1, 1)
     return F, grad_W, grad_X, grad_b
 
 

@@ -24,9 +24,10 @@ class NeuralNetwork:
             # Todo: Initialize W, b
             #  according to 'layers_size' array (component in layers_size[i] is the amount of neurons in
             #  layer i). Notice normalization (see notes).
-            W_l = np.array([])    # Some random matrix, with right sizes according to 'layers_size'.
-            b_l = np.array([])    # Some random matrix, with right sizes according to 'layers_size' (the size of the next layer).
-            X_l = np.array([])    # Initiate with something.
+            #  First run with layers at the same size!
+            W_l = np.random.uniform(-1, 1, size=(layers_size[l+1], layers_size[l]))    # Some random matrix, with right sizes according to 'layers_size'.
+            b_l = np.random.uniform(-1, 1, size=(layers_size[l+1]))    # Some random matrix, with right sizes according to 'layers_size' (the size of the next layer).
+            X_l = np.zeros(layers_size[l])    # Initiate with something. Actually don't need to. Will update in forward.
             print(f'Initializing layer {l}. Size: {len(X_l.T)} neurons.')
             self.layers += [Layer(X_l, W_l, b_l, ReLU)]
 
@@ -39,7 +40,7 @@ class NeuralNetwork:
         # Note: Should we copy X here, or take it as it is?
         prev_output = X
         for layer in self.layers:
-            prev_output = layer.act(prev_output)
+            prev_output = layer.forw(prev_output)
         return prev_output
 
     def calc_grad(self):
