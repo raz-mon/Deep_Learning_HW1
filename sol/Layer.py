@@ -19,7 +19,7 @@ class Layer:
         self.grad_b = []
         self.activation = activation
 
-    def act(self, prev_data):
+    def forw(self, prev_out):
         """
         Return the output of this layer.
         :param prev_data: The data from the former layer.
@@ -27,7 +27,8 @@ class Layer:
         :return: Output of this layer.
         :rtype:
         """
-        return self.activation.act(self.W @ prev_data + self.b)
+        self.X = prev_out
+        return self.activation.act(self.W @ prev_out + self.b)
 
     def calc_grad(self, prev_dx):
         """
