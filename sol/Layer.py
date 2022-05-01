@@ -1,5 +1,6 @@
 from activation_functions import ReLU, Tanh
 
+
 class Layer:
 
     def __init__(self, X, W, b, activation=ReLU):
@@ -41,7 +42,6 @@ class Layer:
         return None
 
 
-
 def softmax_layer(Layer):
     def __init__(self, W, b):
         """
@@ -58,30 +58,3 @@ def softmax_layer(Layer):
         super.__init__(W, b)
 
     # Todo: Add functionality special to the layer.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
