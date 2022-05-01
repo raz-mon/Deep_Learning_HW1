@@ -5,6 +5,26 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
+
+
+
+
+
+
+"""
+a = np.array([1,2,3])
+print(np.concatenate([a, np.array([4, 5])]))
+"""
+
+
+"""
+A = np.array([[1,2,3], [4,5,6]])
+print(f'A: \n{A}')
+print(f'np.sum(A, axis=0): \n{np.sum(A, axis=0)}')
+print(f'np.sum(A, axis=1): \n{np.sum(A, axis=1).reshape(-1, 1)}')
+"""
+
+
 def SGD_for_Softmax(loss_func, loss_func_grad, X, W, C, mb_size, max_epochs, lr):
     """
     Perform SGD on the on the softmax function.
@@ -85,7 +105,7 @@ plt.legend()
 plt.show()
 """
 
-
+"""
 mat = read_mat('../Data/SwissRollData.mat')
 X = (pd.DataFrame(mat['Yt']).to_numpy())
 C = (pd.DataFrame(mat['Ct']).to_numpy()).T
@@ -108,4 +128,4 @@ W = np.random.uniform(-5, 5, (n, l))
 print('X: ', X.shape)
 print('C: ', C.shape)
 
-util_old.gradient_test(new_X, W, new_C, None, "W")
+util_old.gradient_test(new_X, W, new_C, None, "W")"""
