@@ -65,26 +65,26 @@ class NeuralNetwork:
         :return:
         :rtype:
         """
-        prev_dx = None
+        V = None
         for layer in self.layers[::-1]:
-            prev_dx = layer.calc_grad(prev_dx)
+            V = layer.calc_grad(V)
 
         # Todo: Now can use SGD to perform the step (very easily, since each layer holds the gradient of the loss function
         #  by its parameters (theta_l = {W_l, b_l}).
 
 
-    def calc_loss(self):
+    def calc_loss_probs(self):
         """
         Calculate the current loss.
         :return: Current loss function value.
         :rtype: float
         """
-        return self.layers[-1].calc_loss(self.X, self.C)
+        return self.layers[-1].calc_loss_probs(self.X)
 
 
     def train_net(self):
         sgd = SGD(self.lr)
-        loss = [self.calc_loss()[0]]
+        loss = [self.calc_loss_probs()[0]]
         for epoch in range(self.max_epochs):
             # Partition batch into mini-batches.
             btchs = generate_batches(self.X, self.C, self.mb_size)
@@ -98,7 +98,7 @@ class NeuralNetwork:
                 for layer in self.layers:
                     layer.set_W(sgd.step(layer.W, layer.grad_W))
                     layer.set_b(sgd.step(layer.b, layer.grad_b))
-        loss += [self.calc_loss()[0]]
+        loss += [self.calc_loss_probs()[0]]
         return loss
 
 
