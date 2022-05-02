@@ -23,10 +23,12 @@ class NeuralNetwork:
         self.max_epochs = max_epochs
         self.layers = []
         # Initiate all layers but first and last (they are initiated separately).
-        for l in range(1, num_layers-1):
-            W_l = np.random.uniform(-1, 1, size=(layers_size[l+1], layers_size[l]))    # Some random matrix, with right sizes according to 'layers_size'.
-            b_l = np.random.uniform(-1, 1, size=(layers_size[l+1]))    # Some random matrix, with right sizes according to 'layers_size' (the size of the next layer).
-            X_l = np.zeros(layers_size[l])    # Initiate with something. Actually don't need to. Will update in forward.
+        for l in range(1, num_layers - 1):
+            W_l = np.random.uniform(-1, 1, size=(
+            layers_size[l + 1], layers_size[l]))  # Some random matrix, with right sizes according to 'layers_size'.
+            b_l = np.random.uniform(-1, 1, size=(layers_size[
+                l + 1]))  # Some random matrix, with right sizes according to 'layers_size' (the size of the next layer).
+            X_l = np.zeros(layers_size[l])  # Initiate with something. Actually don't need to. Will update in forward.
             print(f'Initializing layer {l}. Size: {len(X_l.T)} neurons.')
             self.layers += [Layer(X_l, W_l, b_l, ReLU)]
         input_layer = Layer(X,
@@ -68,7 +70,6 @@ class NeuralNetwork:
         # Todo: Now can use SGD to perform the step (very easily, since each layer holds the gradient of the loss function
         #  by its parameters (theta_l = {W_l, b_l}).
 
-
     def calc_loss(self):
         """
         Calculate the current loss.
@@ -76,7 +77,6 @@ class NeuralNetwork:
         :rtype: float
         """
         return self.layers[-1].calc_loss()
-
 
     def train_net(self, X, C, mb_size, lr):
         sgd = SGD(lr)
@@ -96,30 +96,3 @@ class NeuralNetwork:
                     sgd.step(layer.b, layer.grad_b)
         loss += [self.calc_loss()]
         return loss
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
