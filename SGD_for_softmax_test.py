@@ -1,5 +1,6 @@
 import numpy as np
-import util
+from sol.util import generate_batches
+from sol.util import sm_grad_w, sm_loss
 from pymatreader import read_mat
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -33,7 +34,7 @@ def SGD_for_Softmax(loss_func, loss_func_grad, X, W, C, mb_size, max_epochs, lr)
     print('W: ', W.shape)
     print('C: ', C.shape)
     for k in range(max_epochs):
-        bchs = util.generate_batches(X.T, C, mb_size)
+        bchs = generate_batches(X.T, C, mb_size)
         # Partition the data to random mini-batches of size mb_size.
         for curr_Mb, curr_Ind in bchs:
             # curr_Mb is a matrix of size n X mb_size.
@@ -67,7 +68,7 @@ losses = []
 epochs = list(range(max_epochs))
 lrs = [i / 100 for i in range(1, 9)]
 for lr in lrs:
-    _, loss = SGD_for_Softmax(util.sm_loss, util.sm_grad_w, X, W.copy(), C, mb_size, max_epochs, lr)
+    _, loss = SGD_for_Softmax(sm_loss, sm_grad_w, X, W.copy(), C, mb_size, max_epochs, lr)
     losses.append(loss)
 
 fmt = ["", "b", "g", "r", "c", "m", "y", "k"]
@@ -83,3 +84,5 @@ plt.grid(True)
 plt.title("SGD Test: Softmax - Validation Data ")
 plt.legend()
 plt.show()
+
+
