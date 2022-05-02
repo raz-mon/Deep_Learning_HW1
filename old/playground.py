@@ -111,7 +111,7 @@ print('new_X: ', new_X.shape)
 print('W: ', W.shape)
 print('b: ', b.shape)
 
-# util_old.jacobian_test(new_X, W.T, b, act, "W")
+util_old.jacobian_test(new_X, W.T, b, act, "b")
 """
 
 mat = read_mat('../Data/SwissRollData.mat')

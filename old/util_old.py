@@ -104,7 +104,7 @@ def gradient_test(X: np.array, W: np.array, C: np.array, b: np.array, policy):
         err_1.append(abs(f_x_d - params[0]))
         err_2.append(abs(f_x_d - params[0] - (epsilon * d_vector.T @ grad)[0][0]))
         ks.append(k)
-    print_grad_test(ks, err_1, err_2, dict_name[policy])
+    print_test(ks, err_1, err_2, dict_name[policy])
 
 
 def gradient_test(X: np.array, W: np.array, C: np.array, b: np.array, policy):
@@ -148,26 +148,28 @@ def jacobian_test(X: np.array, W: np.array, b: np.array, active_func: ActiveFunc
     dict_num = {"W": 1, "X": 2, "b": 3}
     dict_param = {"W": W, "X": X, "b": b}
     dict_name = {"W": "$\delta W$", "X": "$\delta X$", "b": "$\delta b$"}
+    U = np.random.rand(*dict_param[policy].shape)
+    d = (U / np.linalg.norm(U))
+
     V = np.random.rand(W.shape[0], X.shape[1])
-    d = (V / np.linalg.norm(V))
+
     d_vector = d.reshape(-1, 1)
     err_1 = []
     err_2 = []
     ks = []
-    f_x = active_func.activ(W @ X + b)
+    g_x = sum([arr[i] for i, arr in enumerate(active_func.activ(W @ X + b) @ V.T)])
     for k in range(1, 20):
         epsilon = 0.5 ** k
-        jac_v = JacMV(X, W, b, epsilon * d, active_func, policy)
-        # dict_args = {"W": (W + epsilon * d) @ X + b, "X": W @ (X + epsilon * d) + b, "b": W @ X + (b + epsilon * d)}
-        dict_args = {"W": (W @ X + b) + epsilon * d}
-        f_x_d = active_func.activ(dict_args[policy])
-        err_1.append(np.linalg.norm(f_x_d - f_x))
-        err_2.append(np.linalg.norm(f_x_d - f_x - jac_v))
+        jac_v = JacTMV(X, W, b, V, active_func, policy).reshape(-1, 1)
+        dict_args = {"W": lambda: (W + epsilon * d) @ X + b, "X": lambda: W @ (X + epsilon * d) + b, "b": lambda: W @ X + (b + epsilon * d)}
+        g_x_d = sum([arr[i] for i, arr in enumerate(active_func.activ(dict_args[policy]()) @ V.T)])
+        err_1.append(abs(g_x_d - g_x))
+        err_2.append(abs(g_x_d - g_x - (epsilon * d_vector.T @ jac_v)[0][0]))
         ks.append(k)
     print_test(ks, err_1, err_2, "Jacobian Test: " + dict_name[policy])
 
 
-def JacMV(X: np.array, W: np.array, b: np.array, V: np.array, active_func: ActiveFunc, policy):
+def JacTMV(X: np.array, W: np.array, b: np.array, V: np.array, active_func: ActiveFunc, policy):
     temp = W @ X + b
     arg = active_func.deriv(temp) * V
     dict_jac = {"W": arg @ X.T, "X": W.T @ arg, "b": np.sum(arg, axis=1).reshape(-1, 1)}
