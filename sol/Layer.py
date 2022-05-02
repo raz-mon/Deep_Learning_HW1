@@ -19,6 +19,12 @@ class Layer:
         self.grad_b = []
         self.activation = activation
 
+    def set_W(self, val):
+        self.W = val
+
+    def set_b(self, val):
+        self.b = val
+
     def forward_pass(self, prev_out):
         """
         Return the output of this layer.
@@ -41,10 +47,10 @@ class Layer:
         :return:
         :rtype:
         """
-        act_deriv = self.activation.der(self.W @ self.X + self.b)
-        self.grad_X = self.W.T @ (act_deriv * V)
-        self.grad_W = (act_deriv * V) @ self.X.T
-        self.grad_b = np.sum(act_deriv * V, axis=1).reshape(-1, 1)
+        act_deriv = self.activation.der(self.W @ self.X + self.b) * V
+        self.grad_X = self.W.T @ (act_deriv)
+        self.grad_W = (act_deriv) @ self.X.T
+        self.grad_b = np.sum(act_deriv, axis=1).reshape(-1, 1)
         return self.grad_X
 
 
@@ -70,7 +76,7 @@ class SoftmaxLayer(Layer):
 
     # Inherits 'forward'.
 
-    def calc_grad(self, V):
+    def calc_grad(self, V=None):
         expr = self.W @ self.X + self.b
         arg = expr - etta(expr)
         prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
@@ -79,15 +85,18 @@ class SoftmaxLayer(Layer):
         self.grad_W = (1 / m) * (self.X @ (prob - self.C))
         self.grad_X = (1 / m) * (self.W @ (prob - self.C).T)
         self.grad_b = (1 / m) * np.sum((prob - self.C), axis=1).reshape(-1, 1)
-        return self.grad_X @ V
+        return self.grad_X
 
-    def calc_loss(self):
+    def calc_loss_probs(self, X):
+        # Assign whole batch to the object fields.
+        self.X = X
+
         expr = self.W @ self.X + self.b
         arg = expr - etta(expr)
         prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
         m = len(self.X.T)
         F = - (1 / m) * np.sum(self.C * np.log(prob))
-        return F
+        return F, prob
 
 
 class ResNetLayer:

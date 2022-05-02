@@ -3,7 +3,40 @@ import numpy as np
 from pymatreader import read_mat
 import pandas as pd
 import matplotlib.pyplot as plt
+
+
+
+
+def change_arr(arr):
+    arr = np.array([1, 2, 3])
+
+
+a1 = np.array([1])
+change_arr(a1)
+print(a1)
+
+
+"""
+a = np.array([1,2,3])
+print(a[::-1])
+"""
+
+
+"""
+a = np.array([1,2,3])
+print(np.concatenate([a, np.array([4, 5])]))
+"""
+
+
+"""
+A = np.array([[1,2,3], [4,5,6]])
+print(f'A: \n{A}')
+print(f'np.sum(A, axis=0): \n{np.sum(A, axis=0)}')
+print(f'np.sum(A, axis=1): \n{np.sum(A, axis=1).reshape(-1, 1)}')
+"""
+
 from sol.activation_functions import Tanh
+
 
 
 def SGD_for_Softmax(loss_func, loss_func_grad, X, W, C, mb_size, max_epochs, lr):
