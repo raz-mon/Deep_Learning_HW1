@@ -3,6 +3,7 @@ import numpy as np
 from pymatreader import read_mat
 import pandas as pd
 import matplotlib.pyplot as plt
+from sol.activation_functions import Tanh
 
 
 def SGD_for_Softmax(loss_func, loss_func_grad, X, W, C, mb_size, max_epochs, lr):
@@ -42,6 +43,7 @@ def SGD_for_Softmax(loss_func, loss_func_grad, X, W, C, mb_size, max_epochs, lr)
             W -= lr * grad
         loss.append(loss_func(X, W, C))
     return W, loss
+
 
 """
 mat = read_mat('../Data/SwissRollData.mat')
@@ -84,15 +86,14 @@ plt.title("SGD Test: Softmax")
 plt.legend()
 plt.show()
 """
-"""
 
 mat = read_mat('../Data/SwissRollData.mat')
 X = (pd.DataFrame(mat['Yt']).to_numpy())
 C = (pd.DataFrame(mat['Ct']).to_numpy()).T
 # C = pd.DataFrame(mat['Ct']).to_numpy()
 
-#X = np.random.rand(*X.shape).T
-#X /= np.linalg.norm(X)
+# X = np.random.rand(*X.shape).T
+# X /= np.linalg.norm(X)
 
 
 # util.gradient_test_W(X, W, C)
@@ -104,11 +105,13 @@ new_X, new_C = bchs[0]
 n = len(X)
 l = len(C[0])
 W = np.random.uniform(-5, 5, (n, l))
+b = np.random.uniform(-5, 5, (n, 1))
+act = Tanh()
+print('new_X: ', new_X.shape)
+print('W: ', W.shape)
+print('b: ', b.shape)
 
-print('X: ', X.shape)
-print('C: ', C.shape)
-
-util_old.gradient_test(new_X, W, new_C, None, "W")
+# util_old.jacobian_test(new_X, W.T, b, act, "W")
 """
 
 mat = read_mat('../Data/SwissRollData.mat')
@@ -142,3 +145,5 @@ plt.grid(True)
 plt.title("SGD Test: Softmax - Validation Data, different mini-batches size")
 plt.legend()
 plt.show()
+
+"""
