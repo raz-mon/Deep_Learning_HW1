@@ -6,9 +6,19 @@ import matplotlib.pyplot as plt
 
 
 
+def change_arr(arr):
+    arr = np.array([1, 2, 3])
 
 
+a1 = np.array([1])
+change_arr(a1)
+print(a1)
 
+
+"""
+a = np.array([1,2,3])
+print(a[::-1])
+"""
 
 
 """

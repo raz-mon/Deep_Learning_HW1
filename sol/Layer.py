@@ -19,6 +19,12 @@ class Layer:
         self.grad_b = []
         self.activation = activation
 
+    def set_W(self, val):
+        self.W = val
+
+    def set_b(self, val):
+        self.b = val
+
     def forward_pass(self, prev_out):
         """
         Return the output of this layer.
@@ -81,13 +87,17 @@ class SoftmaxLayer(Layer):
         self.grad_b = (1 / m) * np.sum((prob - self.C), axis=1).reshape(-1, 1)
         return self.grad_X @ V
 
-    def calc_loss(self):
+    def calc_loss(self, X, C):
+        # Assign whole batch to the object fields.
+        self.X = X
+        self.C = C
+
         expr = self.W @ self.X + self.b
         arg = expr - etta(expr)
         prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
         m = len(self.X.T)
         F = - (1 / m) * np.sum(self.C * np.log(prob))
-        return F
+        return [F, prob]
 
 
 class ResNetLayer:

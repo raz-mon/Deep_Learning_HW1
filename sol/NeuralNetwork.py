@@ -8,7 +8,7 @@ from SGD import SGD
 
 class NeuralNetwork:
 
-    def __init__(self, X, C, layers_size, n_classes, mb_size, max_epochs, activation=ReLU):
+    def __init__(self, X, C, layers_size, n_classes, mb_size, max_epochs, lr, activation=ReLU):
         """
         Initialize the neural net.
         :param mb_size:
@@ -18,10 +18,14 @@ class NeuralNetwork:
         :param n_classes: The amount of classes of this classifier.
         :type n_classes: int
         """
-        num_layers = len(layers_size)
+        self.X = X
+        self.C = C
+        self.lr = lr
         self.mb_size = mb_size
         self.max_epochs = max_epochs
         self.layers = []
+        num_layers = len(layers_size)
+
         # Initiate all layers but first and last (they are initiated separately).
         for l in range(1, num_layers-1):
             W_l = np.random.uniform(-1, 1, size=(layers_size[l+1], layers_size[l]))    # Some random matrix, with right sizes according to 'layers_size'.
@@ -75,15 +79,15 @@ class NeuralNetwork:
         :return: Current loss function value.
         :rtype: float
         """
-        return self.layers[-1].calc_loss()
+        return self.layers[-1].calc_loss(self.X, self.C)
 
 
-    def train_net(self, X, C, mb_size, lr):
-        sgd = SGD(lr)
-        loss = [self.calc_loss()]
+    def train_net(self):
+        sgd = SGD(self.lr)
+        loss = [self.calc_loss()[0]]
         for epoch in range(self.max_epochs):
             # Partition batch into mini-batches.
-            btchs = generate_batches(X, C, mb_size)
+            btchs = generate_batches(self.X, self.C, self.mb_size)
             # For each mini-batch:
             for curr_Mb, curr_Indicator in btchs:
                 # Calculate forward-pass -->
@@ -92,9 +96,9 @@ class NeuralNetwork:
                 self.backward()
                 # Perform SGD step.
                 for layer in self.layers:
-                    sgd.step(layer.W, layer.grad_W)
-                    sgd.step(layer.b, layer.grad_b)
-        loss += [self.calc_loss()]
+                    layer.set_W(sgd.step(layer.W, layer.grad_W))
+                    layer.set_b(sgd.step(layer.b, layer.grad_b))
+        loss += [self.calc_loss()[0]]
         return loss
 
 
