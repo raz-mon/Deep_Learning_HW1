@@ -2,6 +2,8 @@ import random
 import functools
 import matplotlib.pyplot as plt
 import numpy as np
+from sol.activation_functions import ActiveFunc
+from sol.activation_functions import ReLU
 
 """
 Here we'll put our utility functions (SGD, derivatives etc.).
@@ -105,7 +107,74 @@ def gradient_test(X: np.array, W: np.array, C: np.array, b: np.array, policy):
     print_grad_test(ks, err_1, err_2, dict_name[policy])
 
 
-def print_grad_test(k, err_1, err_2, title):
+def gradient_test(X: np.array, W: np.array, C: np.array, b: np.array, policy):
+    """""
+    Gradient test with respect for W.
+    :param X matrix.
+    :param W matrix.
+    :param C matrix.
+    :return matplotlib graph which shows the gradiant test.
+    """""
+    dict_num = {"W": 1, "X": 2, "b": 3}
+    dict_param = {"W": W, "X": X, "b": b}
+    dict_name = {"W": "$\delta W$", "X": "$\delta X$", "b": "$\delta b$"}
+    V = np.random.rand(dict_param[policy].shape[0], dict_param[policy].shape[1])
+    d = (V / np.linalg.norm(V))
+    d_vector = d.reshape(-1, 1)
+    err_1 = []
+    err_2 = []
+    ks = []
+    params = soft_max_regression(X, W, C)
+    grad = params[dict_num[policy]].reshape(-1, 1)
+    for k in range(1, 20):
+        epsilon = 0.5 ** k
+        new = dict_param[policy] + epsilon * d
+        dict_args = {"W": (X, new, C, b), "X": (new, W, C, b), "b": (X, W, C, new)}
+        f_x_d, _, _, _ = soft_max_regression(*dict_args[policy])
+        err_1.append(abs(f_x_d - params[0]))
+        err_2.append(abs(f_x_d - params[0] - (epsilon * d_vector.T @ grad)[0][0]))
+        ks.append(k)
+    print_test(ks, err_1, err_2, "Gradiant Test: " + dict_name[policy])
+
+
+def jacobian_test(X: np.array, W: np.array, b: np.array, active_func: ActiveFunc, policy):
+    """""
+    Gradient test with respect for W.
+    :param X matrix.
+    :param W matrix.
+    :param C matrix.
+    :return matplotlib graph which shows the gradiant test.
+    """""
+    dict_num = {"W": 1, "X": 2, "b": 3}
+    dict_param = {"W": W, "X": X, "b": b}
+    dict_name = {"W": "$\delta W$", "X": "$\delta X$", "b": "$\delta b$"}
+    V = np.random.rand(W.shape[0], X.shape[1])
+    d = (V / np.linalg.norm(V))
+    d_vector = d.reshape(-1, 1)
+    err_1 = []
+    err_2 = []
+    ks = []
+    f_x = active_func.activ(W @ X + b)
+    for k in range(1, 20):
+        epsilon = 0.5 ** k
+        jac_v = JacMV(X, W, b, epsilon * d, active_func, policy)
+        # dict_args = {"W": (W + epsilon * d) @ X + b, "X": W @ (X + epsilon * d) + b, "b": W @ X + (b + epsilon * d)}
+        dict_args = {"W": (W @ X + b) + epsilon * d}
+        f_x_d = active_func.activ(dict_args[policy])
+        err_1.append(np.linalg.norm(f_x_d - f_x))
+        err_2.append(np.linalg.norm(f_x_d - f_x - jac_v))
+        ks.append(k)
+    print_test(ks, err_1, err_2, "Jacobian Test: " + dict_name[policy])
+
+
+def JacMV(X: np.array, W: np.array, b: np.array, V: np.array, active_func: ActiveFunc, policy):
+    temp = W @ X + b
+    arg = active_func.deriv(temp) * V
+    dict_jac = {"W": arg @ X.T, "X": W.T @ arg, "b": np.sum(arg, axis=1).reshape(-1, 1)}
+    return dict_jac[policy]
+
+
+def print_test(k, err_1, err_2, title):
     """""
     Plot a graph with O(e) and O(e^2) for the gradiant test. 
     """""
@@ -117,7 +186,7 @@ def print_grad_test(k, err_1, err_2, title):
     ax.set_xlabel("k", fontdict={"size": 21})
     ax.set_ylabel("error", fontdict={"size": 21})
     plt.grid(True)
-    plt.title("Gradiant Test: " + title)
+    plt.title(title)
     plt.legend()
     plt.show()
 
