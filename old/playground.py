@@ -5,15 +5,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-
-
-def change_arr(arr):
-    arr = np.array([1, 2, 3])
-
-
-a1 = np.array([1])
-change_arr(a1)
-print(a1)
+f = lambda x: x**2 if x>=0 else 0
+arr = np.array([1, 2])
+print(np.vectorize(f)(arr))
+# f(arr)
+f2 = lambda x: np.maximum(0, x)
+print(f2(arr))
+f3 = lambda x: np.tanh(x)
+print(f3(arr))
 
 
 """
@@ -120,9 +119,18 @@ plt.legend()
 plt.show()
 """
 
+
+
+
+
+
+
+
+
+"""
 mat = read_mat('../Data/SwissRollData.mat')
 X = (pd.DataFrame(mat['Yt']).to_numpy())
-C = (pd.DataFrame(mat['Ct']).to_numpy()).T
+C = (pd.DataFrame(mat['Ct']).to_numpy()).T"""
 # C = pd.DataFrame(mat['Ct']).to_numpy()
 
 # X = np.random.rand(*X.shape).T
@@ -130,7 +138,7 @@ C = (pd.DataFrame(mat['Ct']).to_numpy()).T
 
 
 # util.gradient_test_W(X, W, C)
-
+"""
 mb_size = 500
 bchs = util_old.generate_batches(X.T, C, mb_size)
 new_X, new_C = bchs[0]
@@ -145,6 +153,15 @@ print('W: ', W.shape)
 print('b: ', b.shape)
 
 util_old.jacobian_test(new_X, W.T, b, act, "b")
+"""
+
+
+
+
+
+
+
+
 """
 
 mat = read_mat('../Data/SwissRollData.mat')

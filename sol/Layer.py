@@ -1,11 +1,11 @@
-from activation_functions import ReLU, Tanh
+from activation_functions import ReLU, Tanh, Identity
 import numpy as np
 from util import etta
 
 
 class Layer:
     """A layer in a regular (feedforward) Neural Network."""
-    def __init__(self, X, W, b, activation=ReLU):
+    def __init__(self, X, W, b, activation=ReLU()):
         """
         Initiate the layer.
         :return:
@@ -56,7 +56,7 @@ class Layer:
 
 class SoftmaxLayer(Layer):
     """The last layer of a classifying Neural Network, implementing the soft-max function"""
-    def __init__(self, X, W, b, C, activation=ReLU):
+    def __init__(self, X, W, b, C, activation=Identity()):
 
         """
 
@@ -70,9 +70,8 @@ class SoftmaxLayer(Layer):
         :rtype:
         """
 
-        super().__init__(X, W, b)
+        super().__init__(X, W, b, activation)
         self.C = C
-        self.activation = lambda x: x
 
     # Inherits 'forward'.
 
@@ -82,20 +81,21 @@ class SoftmaxLayer(Layer):
         prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
         m = len(self.X.T)
         # F = - (1 / m) * np.sum(C * np.log(prob))
-        self.grad_W = (1 / m) * (self.X @ (prob - self.C))
-        self.grad_X = (1 / m) * (self.W @ (prob - self.C).T)
+        self.grad_W = (1 / m) * (self.X @ (prob - self.C).T)
+        self.grad_X = (1 / m) * (self.W @ (prob - self.C))
         self.grad_b = (1 / m) * np.sum((prob - self.C), axis=1).reshape(-1, 1)
         return self.grad_X
 
-    def calc_loss_probs(self, X):
+    def calc_loss_probs(self, X, C):
         # Assign whole batch to the object fields.
         self.X = X
+        self.C = C
 
         expr = self.W @ self.X + self.b
         arg = expr - etta(expr)
         prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
         m = len(self.X.T)
-        F = - (1 / m) * np.sum(self.C * np.log(prob))
+        F = - (1 / m) * np.sum(self.C.T * np.log(prob))
         return F, prob
 
 
