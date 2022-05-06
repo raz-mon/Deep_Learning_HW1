@@ -98,7 +98,7 @@ class NeuralNetwork:
             # For each mini-batch:
             for curr_Mb, curr_Indicator in batches:
                 # Calculate forward-pass -->
-                self.forward(curr_Mb, curr_Indicator.T)
+                self.forward(curr_Mb, curr_Indicator)
                 # Calculate backward-pass -->
                 self.backward()
                 # Perform SGD step.

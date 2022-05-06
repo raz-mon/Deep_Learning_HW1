@@ -4,7 +4,7 @@ from pymatreader import read_mat
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
+"""
 f = lambda x: x**2 if x>=0 else 0
 arr = np.array([1, 2])
 print(np.vectorize(f)(arr))
@@ -14,18 +14,14 @@ print(f2(arr))
 f3 = lambda x: np.tanh(x)
 print(f3(arr))
 
-
-"""
 a = np.array([1,2,3])
 print(a[::-1])
 """
-
 
 """
 a = np.array([1,2,3])
 print(np.concatenate([a, np.array([4, 5])]))
 """
-
 
 """
 A = np.array([[1,2,3], [4,5,6]])
@@ -37,8 +33,7 @@ print(f'np.sum(A, axis=1): \n{np.sum(A, axis=1).reshape(-1, 1)}')
 from sol.activation_functions import Tanh
 
 
-
-def SGD_for_Softmax(loss_func, loss_func_grad, X, W, C, mb_size, max_epochs, lr):
+def SGD_for_Softmax(loss_func, loss_func_grad, X, W, b, C, mb_size, max_epochs, lr):
     """
     Perform SGD on the on the softmax function.
     :param loss_func:
@@ -71,35 +66,37 @@ def SGD_for_Softmax(loss_func, loss_func_grad, X, W, C, mb_size, max_epochs, lr)
         for curr_Mb, curr_Ind in bchs:
             # curr_Mb is a matrix of size n X mb_size.
             # curr_Ind is a matrix of size mb_size X l.
-            grad = loss_func_grad(curr_Mb, W, curr_Ind)
+            grad = loss_func_grad(curr_Mb, W, b, curr_Ind)
             W -= lr * grad
         loss.append(loss_func(X, W, C))
     return W, loss
 
 
-"""
 mat = read_mat('../Data/SwissRollData.mat')
 X = (pd.DataFrame(mat['Yt']).to_numpy())
 C = (pd.DataFrame(mat['Ct']).to_numpy()).T
 # C = pd.DataFrame(mat['Ct']).to_numpy()
 
-#X = np.random.rand(*X.shape).T
-#X /= np.linalg.norm(X)
+# X = np.random.rand(*X.shape).T
+# X /= np.linalg.norm(X)
 
 n = len(X)
 l = len(C[0])
 W = np.random.uniform(-5, 5, (n, l))
+b = np.random.uniform(-5, 5, (l, 1))
 
 print('X: ', X.shape)
 print('C: ', C.shape)
+print('W: ', W.shape)
+print('b: ', b.shape)
 
-# util.gradient_test_W(X, W, C)
-
+util_old.gradient_test(X, W, C, b, "W")
+"""
 mb_size = 500
 max_epochs = 100
 losses = []
 epochs = list(range(max_epochs))
-lrs = [i / 100 for i in range(1, 9)]
+lrs = [i / 100 for i in range(1, 3)]
 for lr in lrs:
     _, loss = SGD_for_Softmax(util_old.sm_loss, util_old.sm_grad_w, X, W.copy(), C, mb_size, max_epochs, lr)
     losses.append(loss)
@@ -118,19 +115,20 @@ plt.title("SGD Test: Softmax")
 plt.legend()
 plt.show()
 """
-
-
-
-
-
-
-
-
-
 """
+
+
+
+
+
+
+
+
+
+
 mat = read_mat('../Data/SwissRollData.mat')
 X = (pd.DataFrame(mat['Yt']).to_numpy())
-C = (pd.DataFrame(mat['Ct']).to_numpy()).T"""
+C = (pd.DataFrame(mat['Ct']).to_numpy()).T
 # C = pd.DataFrame(mat['Ct']).to_numpy()
 
 # X = np.random.rand(*X.shape).T
@@ -138,7 +136,7 @@ C = (pd.DataFrame(mat['Ct']).to_numpy()).T"""
 
 
 # util.gradient_test_W(X, W, C)
-"""
+
 mb_size = 500
 bchs = util_old.generate_batches(X.T, C, mb_size)
 new_X, new_C = bchs[0]
@@ -154,13 +152,6 @@ print('b: ', b.shape)
 
 util_old.jacobian_test(new_X, W.T, b, act, "b")
 """
-
-
-
-
-
-
-
 
 """
 

@@ -5,6 +5,7 @@ from util import etta
 
 class Layer:
     """A layer in a regular (feedforward) Neural Network."""
+
     def __init__(self, X, W, b, activation=ReLU()):
         """
         Initiate the layer.
@@ -56,8 +57,8 @@ class Layer:
 
 class SoftmaxLayer(Layer):
     """The last layer of a classifying Neural Network, implementing the soft-max function"""
-    def __init__(self, X, W, b, C, activation=Identity()):
 
+    def __init__(self, X, W, b, C, activation=Identity()):
         """
 
         :param self:
@@ -76,6 +77,7 @@ class SoftmaxLayer(Layer):
     # Inherits 'forward'.
 
     def calc_grad(self, V=None):
+        """
         expr = self.W @ self.X + self.b
         arg = expr - etta(expr)
         prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
@@ -84,34 +86,43 @@ class SoftmaxLayer(Layer):
         self.grad_W = (1 / m) * (self.X @ (prob - self.C).T)
         self.grad_X = (1 / m) * (self.W @ (prob - self.C))
         self.grad_b = (1 / m) * np.sum((prob - self.C), axis=1).reshape(-1, 1)
+        """
+        expr = self.W @ self.X + self.b
+        X_tW = expr.T @ self.W
+        arg = X_tW - etta(X_tW)
+        prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
+        m = len(self.X.T)
+        # F = - (1 / m) * np.sum(self.C * np.log(prob))
+        self.grad_W = (1 / m) * (expr @ (prob - self.C))
+        self.grad_X = (1 / m) * (self.W @ (prob - self.C).T)
+        self.grad_b = (1 / m) * np.sum((prob - self.C), axis=0).reshape(-1, 1)
         return self.grad_X
 
     def calc_loss_probs(self, X, C):
         # Assign whole batch to the object fields.
-        self.X = X
-        self.C = C
-
+        """
         expr = self.W @ self.X + self.b
         arg = expr - etta(expr)
         prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
         m = len(self.X.T)
         F = - (1 / m) * np.sum(self.C.T * np.log(prob))
         return F, prob
+        """
+        self.X = X
+        self.C = C
+
+        expr = self.W @ self.X + self.b
+        X_tW = expr.T @ self.W
+        arg = X_tW - etta(X_tW)
+        prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
+        m = len(self.X.T)
+        F = - (1 / m) * np.sum(self.C * np.log(prob))
+        return F, prob
 
 
 class ResNetLayer:
     """A layer in a Residual Neural Network"""
+
     def __init__(self, W1, W2, b1, b2, C, X, W, b):
         # TBD..
         return None
-
-
-
-
-
-
-
-
-
-
-
