@@ -29,7 +29,7 @@ def soft_max_regression(X: np.array, W: np.array, C: np.array, b):
     return F, grad_W, grad_X, grad_b
 
 
-def sm_loss(X, W, C, b=None):
+def sm_loss(X, W, C):
     """
     :param X:
     :type X:
@@ -48,7 +48,7 @@ def sm_loss(X, W, C, b=None):
     return F
 
 
-def sm_grad_w(X, W, C, b=None):
+def sm_grad_w(X, W, C):
     """
     :param X:
     :type X:

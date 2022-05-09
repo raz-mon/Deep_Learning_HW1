@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from Layer import Layer, SoftmaxLayer
 from activation_functions import ReLU, Tanh, Identity
-from util import etta, generate_batches
+from util import etta, generate_batches, get_accuracy, calc_probs
 from SGD import SGD
 
 
@@ -107,7 +107,8 @@ class NeuralNetwork:
                 for layer in self.layers:
                     layer.set_W(sgd.step(layer.W, layer.grad_W))
                     layer.set_b(sgd.step(layer.b, layer.grad_b))
+            # l, p = calc_probs(self.X, self.layers[-1].W, self.C, self.layers[-1].b)
             l, p = self.calc_loss_probs()
-            loss += l
-            prob += p
-        return loss
+            loss += [l]
+            prob += [get_accuracy(p, self.layers[-1].C)]
+        return loss, prob

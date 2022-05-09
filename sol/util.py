@@ -78,48 +78,33 @@ def soft_max_regression(X: np.array, W: np.array, C: np.array, b: np.array):
     return F, grad_W, grad_X, grad_b
 
 
-def sm_loss(X, W, C):
-    """
-    :param X:
-    :type X:
-    :param W:
-    :type W:
-    :param C:
-    :type C:
-    :return:
-    :rtype:
-    """
-    m = len(X.T)
-    X_tW = X.T @ W
-    arg = X_tW - etta(X_tW)
+def calc_probs(X, W, C, b):
+    expr = (W @ X + b).T
+    arg = expr - etta(expr)
     prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
+    m = len(X.T)
     F = - (1 / m) * np.sum(C * np.log(prob))
-    return F
+    return F, prob
 
 
-def sm_grad_w(X, W, C):
+def get_accuracy(Prob: np.array, Indicator: np.array):
     """
-    :param X:
-    :type X:
-    :param W:
-    :type W:
+    Get the probabilities matrix and indicator matrix and calculate the accuracy
+    :param Prob:
+    :type Prob:
     :param C:
     :type C:
     :return:
     :rtype:
     """
-    X_tW = X.T @ W
-    arg = X_tW - etta(X_tW)
-    prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
-    m = len(X.T)
-    return (1 / m) * (X @ (prob - C))
+    total = len(Indicator)
+    probs = np.argmax(Prob, axis=1)
+    indicators = np.argmax(Indicator, axis=1)
+    counter = sum(probs == indicators)
+    return counter / total
 
-def
 
-def nn_gradient_test(nn, X, C, policy):
-    dict_name = {"W": "$\delta W$", "b": "$\delta b$"}
-    dict_ds = {"W": lambda: [np.random.randn(*w.shape) for w in Ws],
-               "b": lambda: [np.random.randn(*b.shape) for b in bs]}
+def nn_gradient_test(nn, X, C):
     Ws = []
     dWs = []
     bs = []
@@ -134,34 +119,32 @@ def nn_gradient_test(nn, X, C, policy):
         dbs.append(layer.grad_b.copy())
     f_x, _ = nn.calc_loss_probs()
 
-    ds = dict_ds[policy]()
+    ds_W = [np.random.randn(*w.shape) for w in Ws]
+    ds_b = [np.random.randn(*b.shape) for b in bs]
+
     err_1 = []
     err_2 = []
     ks = []
 
     sum_grad = 0
-    if policy == "W":
-        for i, layer in enumerate(nn.layers):
-            sum_grad += (ds[i].reshape(1, -1) @ layer.grad_W.reshape(-1, 1))[0][0]
-    else:
-        for i, layer in enumerate(nn.layers):
-            sum_grad += (ds[i].reshape(1, -1) @ layer.grad_b.reshape(-1, 1))[0][0]
+    for i, layer in enumerate(nn.layers):
+        sum_grad += (ds_W[i].reshape(1, -1) @ layer.grad_W.reshape(-1, 1))[0][0]
+    for i, layer in enumerate(nn.layers):
+        sum_grad += (ds_b[i].reshape(1, -1) @ layer.grad_b.reshape(-1, 1))[0][0]
 
     for k in range(1, 10):
         epsilon = 0.5 ** k
-        if policy == "W":
-            for i, layer in enumerate(nn.layers):
-                layer.set_W(Ws[i] + epsilon * ds[i])
-        else:
-            for i, layer in enumerate(nn.layers):
-                layer.set_b(bs[i] + epsilon * ds[i])
+        for i, layer in enumerate(nn.layers):
+            layer.set_W(Ws[i] + epsilon * ds_W[i])
+        for i, layer in enumerate(nn.layers):
+            layer.set_b(bs[i] + epsilon * ds_b[i])
         nn.forward(X)
         f_x_d, _ = nn.calc_loss_probs()
 
         err_1.append(abs(f_x_d - f_x))
         err_2.append(abs(f_x_d - f_x - epsilon * sum_grad))
         ks.append(k)
-    print_test(ks, err_1, err_2, "Network Gradiant Test: " + dict_name[policy])
+    print_test(ks, err_1, err_2, "Network Gradiant Test")
 
 
 def gradient_test(X: np.array, W: np.array, C: np.array, b: np.array, policy):
