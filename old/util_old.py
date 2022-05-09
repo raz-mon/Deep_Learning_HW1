@@ -10,7 +10,7 @@ Here we'll put our utility functions (SGD, derivatives etc.).
 """
 
 
-def soft_max_regression(X: np.array, W: np.array, C: np.array):
+def soft_max_regression(X: np.array, W: np.array, C: np.array, b):
     """""
     Computing the loss function 'Soft-Max regression'.
         :param X. The data input as a matrix of size nXm
@@ -18,14 +18,14 @@ def soft_max_regression(X: np.array, W: np.array, C: np.array):
         :param C. Indicators matrix. size of mXl.
         :return the loss function, and the gradients with respect to X,W.
     """""
-    X_tW = X.T @ W
-    arg = X_tW - etta(X_tW)
-    prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
+    expr = (W @ X + b).T                                                    # m X l
+    arg = expr - etta(expr)                                                 # m X l
+    prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)         # m X l
     m = len(X.T)
     F = - (1 / m) * np.sum(C * np.log(prob))
-    grad_W = (1 / m) * (X @ (prob - C))
-    grad_X = (1 / m) * (W @ (prob - C).T)
-    grad_b = (1 / m) * np.sum((prob - C), axis=1).reshape(-1, 1)
+    grad_W = (1 / m) * (X @ (prob - C)).T                                     # l X n -> n X l
+    grad_X = (1 / m) * (W.T @ (prob - C).T)
+    grad_b = (1 / m) * np.sum((prob - C).T, axis=1).reshape(-1, 1)
     return F, grad_W, grad_X, grad_b
 
 

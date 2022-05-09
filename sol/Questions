@@ -1,0 +1,4 @@
+Questions:
+1. size of grad_W must be the same as W ?
+2. what is the resnet last layer (if it softmax, how we need to care the w2, w1 weights)
+3. go through the sequence of the whole network gradient test

@@ -2,6 +2,7 @@ import random
 import functools
 import matplotlib.pyplot as plt
 import numpy as np
+from sol.activation_functions import ActiveFunc
 
 
 def etta(A: np.array):
@@ -48,14 +49,15 @@ def generate_batches(X, C, mb_size):
     return mbs
 
 
-def soft_max_regression(X: np.array, W: np.array, C: np.array):
+def soft_max_regression(X: np.array, W: np.array, C: np.array, b: np.array):
     """""
     Computing the loss function 'Soft-Max regression'.
-        :param X. The data input as a matrix of size nXm
-        :param W. The weights, size of nXl (where l is the amount of labels)
-        :param C. Indicators matrix. size of mXl.
-        :return the loss function, and the gradients with respect to X,W.
+    :param X. The data input as a matrix of size nXm
+    :param W. The weights, size of nXl (where l is the amount of labels)
+    :param C. Indicators matrix. size of mXl.
+    :return the loss function, and the gradients with respect to X,W.
     """""
+    """
     X_tW = X.T @ W
     arg = X_tW - etta(X_tW)
     prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
@@ -64,6 +66,15 @@ def soft_max_regression(X: np.array, W: np.array, C: np.array):
     grad_W = (1 / m) * (X @ (prob - C))
     grad_X = (1 / m) * (W @ (prob - C).T)
     grad_b = (1 / m) * np.sum((prob - C), axis=1).reshape(-1, 1)
+    """
+    expr = (W @ X + b).T  # m X l
+    arg = expr - etta(expr)  # m X l
+    prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
+    m = len(X.T)
+    F = - (1 / m) * np.sum(C * np.log(prob))
+    grad_W = (1 / m) * (X @ (prob - C)).T
+    grad_X = (1 / m) * (W.T @ (prob - C).T)
+    grad_b = (1 / m) * np.sum((prob - C).T, axis=1).reshape(-1, 1)
     return F, grad_W, grad_X, grad_b
 
 
@@ -103,8 +114,57 @@ def sm_grad_w(X, W, C):
     m = len(X.T)
     return (1 / m) * (X @ (prob - C))
 
+def
 
-def gradient_test(l, policy):
+def nn_gradient_test(nn, X, C, policy):
+    dict_name = {"W": "$\delta W$", "b": "$\delta b$"}
+    dict_ds = {"W": lambda: [np.random.randn(*w.shape) for w in Ws],
+               "b": lambda: [np.random.randn(*b.shape) for b in bs]}
+    Ws = []
+    dWs = []
+    bs = []
+    dbs = []
+
+    nn.forward(X)
+    nn.backward(C)
+    for layer in nn.layers:
+        Ws.append(layer.W.copy())
+        dWs.append(layer.grad_W.copy())
+        bs.append(layer.b.copy())
+        dbs.append(layer.grad_b.copy())
+    f_x, _ = nn.calc_loss_probs()
+
+    ds = dict_ds[policy]()
+    err_1 = []
+    err_2 = []
+    ks = []
+
+    sum_grad = 0
+    if policy == "W":
+        for i, layer in enumerate(nn.layers):
+            sum_grad += (ds[i].reshape(1, -1) @ layer.grad_W.reshape(-1, 1))[0][0]
+    else:
+        for i, layer in enumerate(nn.layers):
+            sum_grad += (ds[i].reshape(1, -1) @ layer.grad_b.reshape(-1, 1))[0][0]
+
+    for k in range(1, 10):
+        epsilon = 0.5 ** k
+        if policy == "W":
+            for i, layer in enumerate(nn.layers):
+                layer.set_W(Ws[i] + epsilon * ds[i])
+        else:
+            for i, layer in enumerate(nn.layers):
+                layer.set_b(bs[i] + epsilon * ds[i])
+        nn.forward(X)
+        f_x_d, _ = nn.calc_loss_probs()
+
+        err_1.append(abs(f_x_d - f_x))
+        err_2.append(abs(f_x_d - f_x - epsilon * sum_grad))
+        ks.append(k)
+    print_test(ks, err_1, err_2, "Network Gradiant Test: " + dict_name[policy])
+
+
+def gradient_test(X: np.array, W: np.array, C: np.array, b: np.array, policy):
     """""
     Gradient test with respect for W.
     :param X matrix.
@@ -113,7 +173,7 @@ def gradient_test(l, policy):
     :return matplotlib graph which shows the gradiant test.
     """""
     dict_num = {"W": 1, "X": 2, "b": 3}
-    dict_param = {"W": l.W, "X": l.X, "b": l.b}
+    dict_param = {"W": W, "X": X, "b": b}
     dict_name = {"W": "$\delta W$", "X": "$\delta X$", "b": "$\delta b$"}
     V = np.random.rand(dict_param[policy].shape[0], dict_param[policy].shape[1])
     d = (V / np.linalg.norm(V))
@@ -121,13 +181,12 @@ def gradient_test(l, policy):
     err_1 = []
     err_2 = []
     ks = []
-    l.calc_grad()
-    params = [l.calc_loss_probs(l.X, l.C)[0], l.grad_W, l.grad_X, l.grad_b]
+    params = soft_max_regression(X, W, C, b)
     grad = params[dict_num[policy]].reshape(-1, 1)
     for k in range(1, 20):
         epsilon = 0.5 ** k
         new = dict_param[policy] + epsilon * d
-        dict_args = {"W": (l.X, new, l.C, l.b), "X": (new, l.W, l.C, l.b), "b": (l.X, l.W, l.C, new)}
+        dict_args = {"W": (X, new, C, b), "X": (new, W, C, b), "b": (X, W, C, new)}
         f_x_d, _, _, _ = soft_max_regression(*dict_args[policy])
         err_1.append(abs(f_x_d - params[0]))
         err_2.append(abs(f_x_d - params[0] - (epsilon * d_vector.T @ grad)[0][0]))
@@ -135,7 +194,7 @@ def gradient_test(l, policy):
     print_test(ks, err_1, err_2, "Gradiant Test: " + dict_name[policy])
 
 
-def jacobian_test(l, policy):
+def jacobian_test(X: np.array, W: np.array, b: np.array, active_func: ActiveFunc, policy):
     """""
     Gradient test with respect for W.
     :param X matrix.
@@ -144,33 +203,78 @@ def jacobian_test(l, policy):
     :return matplotlib graph which shows the gradiant test.
     """""
     dict_num = {"W": 1, "X": 2, "b": 3}
-    dict_param = {"W": l.W, "X": l.X, "b": l.b}
+    dict_param = {"W": W, "X": X, "b": b}
     dict_name = {"W": "$\delta W$", "X": "$\delta X$", "b": "$\delta b$"}
-    U = np.random.rand(*dict_param[policy].shape)
-    d = (U / np.linalg.norm(U))
+    d = np.random.randn(*dict_param[policy].shape)
+    # d = (U / np.linalg.norm(U))
 
-    V = np.random.rand(l.W.shape[0], l.X.shape[1])
+    V = np.random.randn(W.shape[0], X.shape[1])
 
     d_vector = d.reshape(-1, 1)
     err_1 = []
     err_2 = []
     ks = []
-    g_x = sum([arr[i] for i, arr in enumerate(l.activation.act(l.W @ l.X + l.b) @ V.T)])
+    g_x = sum([arr[i] for i, arr in enumerate(active_func.activ(W @ X + b) @ V.T)])
+    dict_args = {"W": lambda: (W + epsilon * d) @ X + b, "X": lambda: W @ (X + epsilon * d) + b,
+                 "b": lambda: W @ X + (b + epsilon * d)}
     for k in range(1, 20):
         epsilon = 0.5 ** k
-        jac_v = JacTMV(l.X, l.W, l.b, V, l.activation, policy).reshape(-1, 1)
-        dict_args = {"W": lambda: (l.W + epsilon * d) @ l.X + l.b, "X": lambda: l.W @ (l.X + epsilon * d) + l.b, "b": lambda: l.W @ l.X + (l.b + epsilon * d)}
-        g_x_d = sum([arr[i] for i, arr in enumerate(l.activation.activ(dict_args[policy]()) @ V.T)])
+        jac_v = JacTMV(X, W, b, V, active_func, policy).reshape(-1, 1)
+        g_x_d = sum([arr[i] for i, arr in enumerate(active_func.activ(dict_args[policy]()) @ V.T)])
         err_1.append(abs(g_x_d - g_x))
         err_2.append(abs(g_x_d - g_x - (epsilon * d_vector.T @ jac_v)[0][0]))
         ks.append(k)
     print_test(ks, err_1, err_2, "Jacobian Test: " + dict_name[policy])
 
 
-def JacTMV(X: np.array, W: np.array, b: np.array, V: np.array, active_func, policy):
+def resnet_jacobian_test(X: np.array, W1: np.array, W2: np.array, b: np.array, active_func: ActiveFunc, policy):
+    """""
+    Gradient test with respect for W.
+    :param X matrix.
+    :param W matrix.
+    :param C matrix.
+    :return matplotlib graph which shows the gradiant test.
+    """""
+    dict_num = {"W1": 1, "W2": 2, "X": 3, "b": 4}
+    dict_param = {"W1": W1, "W2": W2, "X": X, "b": b}
+    dict_name = {"W1": "$\delta W_1$", "W2": "$\delta W_2$", "X": "$\delta X$", "b": "$\delta b$"}
+    d = np.random.randn(*dict_param[policy].shape)
+    # d = (U / np.linalg.norm(U))
+
+    V = np.random.randn(W2.shape[0], X.shape[1])
+
+    d_vector = d.reshape(-1, 1)
+    err_1 = []
+    err_2 = []
+    ks = []
+    g_x = sum([arr[i] for i, arr in enumerate((X + W2 @ active_func.activ(W1 @ X + b)) @ V.T)])
+    dict_args = {"W1": lambda: X + W2 @ active_func.activ((W1 + epsilon * d) @ X + b),
+                 "W2": lambda: X + (W2 + epsilon * d) @ active_func.activ(W1 @ X + b),
+                 "X": lambda: (X + epsilon * d) + W2 @ active_func.activ(W1 @ (X + epsilon * d) + b),
+                 "b": lambda: X + W2 @ active_func.activ(W1 @ X + (b + epsilon * d))}
+    for k in range(1, 20):
+        epsilon = 0.5 ** k
+        jac_v = resnetJacTMV(X, W1, W2, b, V, active_func, policy).reshape(-1, 1)
+
+        g_x_d = sum([arr[i] for i, arr in enumerate(dict_args[policy]() @ V.T)])
+        err_1.append(abs(g_x_d - g_x))
+        err_2.append(abs(g_x_d - g_x - (epsilon * d_vector.T @ jac_v)[0][0]))
+        ks.append(k)
+    print_test(ks, err_1, err_2, "Resnet Jacobian Test: " + dict_name[policy])
+
+
+def JacTMV(X: np.array, W: np.array, b: np.array, V: np.array, active_func: ActiveFunc, policy):
     temp = W @ X + b
     arg = active_func.deriv(temp) * V
     dict_jac = {"W": arg @ X.T, "X": W.T @ arg, "b": np.sum(arg, axis=1).reshape(-1, 1)}
+    return dict_jac[policy]
+
+
+def resnetJacTMV(X: np.array, W1: np.array, W2: np.array, b: np.array, V: np.array, active_func: ActiveFunc, policy):
+    arg = active_func.der(W1 @ X + b) * (W2.T @ V)
+    dict_jac = {"W1": arg @ X.T, "W2": V @ (active_func.act(W1 @ X + b)).T, "X": V + W1.T @ arg,
+                "b": np.sum(arg, axis=1).reshape(-1, 1)}
+    # "W2": V @ (active_func.act(W1 @ X + b)).T
     return dict_jac[policy]
 
 

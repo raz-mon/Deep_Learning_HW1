@@ -82,7 +82,7 @@ C = (pd.DataFrame(mat['Ct']).to_numpy()).T
 
 n = len(X)
 l = len(C[0])
-W = np.random.uniform(-5, 5, (n, l))
+W = np.random.uniform(-5, 5, (l, n))
 b = np.random.uniform(-5, 5, (l, 1))
 
 print('X: ', X.shape)
