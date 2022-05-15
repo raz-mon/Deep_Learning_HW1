@@ -35,28 +35,18 @@ from sol.activation_functions import Tanh
 
 def SGD_for_Softmax(loss_func, loss_func_grad, X, W, b, C, mb_size, max_epochs, lr):
     """
-    Perform SGD on the on the softmax function.
-    :param loss_func:
-    :type loss_func:
-    :param loss_func_grad:
-    :type loss_func_grad:
-    :param X:
-    :type X:
-    :param C:
-    :type C:
-    :param mb_size:
-    :type mb_size:
-    :param max_epochs:
-    :type max_epochs:
-    :param lr:
-    :type lr:
-    :return:
-    :rtype:
+    :param loss_func: loss function to be evaluated.
+    :param loss_func_grad: gradient of loss function.
+    :param X: X matrix.
+    :param W: W matrix.
+    :param b: biases.
+    :param C: Indicators matrix.
+    :param mb_size: batches size.
+    :param max_epochs: Number of epochs.
+    :param lr: learning rate.
+    :return: the value of W after the GD, and the loss for each epoch.
     """
-    n = len(X)
-    l = len(C[0])
     loss = []
-    # W = np.random.uniform(-5, 5, (n, l))
     print('X: ', X.shape)
     print('W: ', W.shape)
     print('C: ', C.shape)

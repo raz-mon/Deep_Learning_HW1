@@ -26,6 +26,9 @@ class Layer:
     def set_b(self, val):
         self.b = val
 
+    def is_resnet(self):
+        return False
+
     def forward_pass(self, prev_out):
         """
         Return the output of this layer.
@@ -89,7 +92,6 @@ class SoftmaxLayer(Layer):
 
     def calc_loss_probs(self):
         # Assign whole batch to the object fields.
-
         expr = (self.W @ self.X + self.b).T
         arg = expr - etta(expr)
         prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
@@ -120,6 +122,9 @@ class ResNetLayer:
 
     def set_b(self, val):
         self.b = val
+
+    def is_resnet(self):
+        return True
 
     def forward_pass(self, prev_out):
         """

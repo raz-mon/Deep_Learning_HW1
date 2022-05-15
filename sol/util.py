@@ -2,7 +2,7 @@ import random
 import functools
 import matplotlib.pyplot as plt
 import numpy as np
-from sol.activation_functions import ActiveFunc
+from sol.activation_functions import ActiveFunc, Tanh
 
 
 def etta(A: np.array):
@@ -18,14 +18,10 @@ def etta(A: np.array):
 
 def generate_batches(X, C, mb_size):
     """
-    :param X:
-    :type X:
-    :param C:
-    :type C:
-    :param mb_size:
-    :type mb_size:
-    :return:
-    :rtype:
+    :param X: data matrix.
+    :param C: indicators matrix.
+    :param mb_size: batches size.
+    :return: array with all the mini batches and their correspondent indicators.
     """
     data = []
     mb = []
@@ -49,24 +45,43 @@ def generate_batches(X, C, mb_size):
     return mbs
 
 
+def SGD_for_Softmax(loss_func, loss_func_grad, X, W, b, C, mb_size, max_epochs, lr):
+    """
+    :param loss_func: loss function to be evaluated.
+    :param loss_func_grad: gradient of loss function.
+    :param X: X matrix.
+    :param W: W matrix.
+    :param b: biases.
+    :param C: Indicators matrix.
+    :param mb_size: batches size.
+    :param max_epochs: Number of epochs.
+    :param lr: learning rate.
+    :return: the value of W after the GD, and the loss for each epoch.
+    """
+    loss = []
+    print('X: ', X.shape)
+    print('W: ', W.shape)
+    print('C: ', C.shape)
+    for k in range(max_epochs):
+        bchs = generate_batches(X.T, C, mb_size)
+        # Partition the data to random mini-batches of size mb_size.
+        for curr_Mb, curr_Ind in bchs:
+            # curr_Mb is a matrix of size n X mb_size.
+            # curr_Ind is a matrix of size mb_size X l.
+            grad = loss_func_grad(curr_Mb, W, b, curr_Ind)
+            W -= lr * grad
+        loss.append(loss_func(X, W, C))
+    return W, loss
+
+
 def soft_max_regression(X: np.array, W: np.array, C: np.array, b: np.array):
     """""
     Computing the loss function 'Soft-Max regression'.
     :param X. The data input as a matrix of size nXm
-    :param W. The weights, size of nXl (where l is the amount of labels)
+    :param W. The weights, size of lXn (where l is the amount of labels)
     :param C. Indicators matrix. size of mXl.
     :return the loss function, and the gradients with respect to X,W.
     """""
-    """
-    X_tW = X.T @ W
-    arg = X_tW - etta(X_tW)
-    prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
-    m = len(X.T)
-    F = - (1 / m) * np.sum(C * np.log(prob))
-    grad_W = (1 / m) * (X @ (prob - C))
-    grad_X = (1 / m) * (W @ (prob - C).T)
-    grad_b = (1 / m) * np.sum((prob - C), axis=1).reshape(-1, 1)
-    """
     expr = (W @ X + b).T  # m X l
     arg = expr - etta(expr)  # m X l
     prob = np.exp(arg) / np.sum(np.exp(arg), axis=1).reshape(-1, 1)
@@ -97,14 +112,20 @@ def get_accuracy(Prob: np.array, Indicator: np.array):
     :return:
     :rtype:
     """
-    total = len(Indicator)
+    size = len(Prob)
     probs = np.argmax(Prob, axis=1)
     indicators = np.argmax(Indicator, axis=1)
     counter = sum(probs == indicators)
-    return counter / total
+    return counter / size
 
 
 def nn_gradient_test(nn, X, C):
+    """
+    :param nn: The Neural Network.
+    :param X: Data matrix.
+    :param C: Indicators matrix.
+    :return: matplotlib graph which shows the gradiant test.
+    """
     Ws = []
     dWs = []
     bs = []
@@ -144,6 +165,15 @@ def nn_gradient_test(nn, X, C):
         err_1.append(abs(f_x_d - f_x))
         err_2.append(abs(f_x_d - f_x - epsilon * sum_grad))
         ks.append(k)
+    """
+        for i, layer in enumerate(nn.layers[:-1]):
+        print("layer number jacobian test: " + str(i))
+        jacobian_test(layer.X, layer.W, layer.b, Tanh(), "W")
+        jacobian_test(layer.X, layer.W, layer.b, Tanh(), "b")
+    gradient_test(nn.layers[-1].X, nn.layers[-1].W, nn.layers[-1].C, nn.layers[-1].b, "W")
+    """
+
+    print("last layer gradient test")
     print_test(ks, err_1, err_2, "Network Gradiant Test")
 
 
@@ -153,6 +183,8 @@ def gradient_test(X: np.array, W: np.array, C: np.array, b: np.array, policy):
     :param X matrix.
     :param W matrix.
     :param C matrix.
+    :param b matrix.
+    :param policy. Indicates to which parameter we are doing the test.
     :return matplotlib graph which shows the gradiant test.
     """""
     dict_num = {"W": 1, "X": 2, "b": 3}
@@ -182,14 +214,14 @@ def jacobian_test(X: np.array, W: np.array, b: np.array, active_func: ActiveFunc
     Gradient test with respect for W.
     :param X matrix.
     :param W matrix.
-    :param C matrix.
-    :return matplotlib graph which shows the gradiant test.
+    :param b matrix.
+    :param active_func. The activation function (can be Relu or Tanh).
+    :param policy. Indicates to which parameter we are doing the test.
+    :return matplotlib graph which shows the jacobian test.
     """""
-    dict_num = {"W": 1, "X": 2, "b": 3}
     dict_param = {"W": W, "X": X, "b": b}
     dict_name = {"W": "$\delta W$", "X": "$\delta X$", "b": "$\delta b$"}
     d = np.random.randn(*dict_param[policy].shape)
-    # d = (U / np.linalg.norm(U))
 
     V = np.random.randn(W.shape[0], X.shape[1])
 
@@ -211,18 +243,18 @@ def jacobian_test(X: np.array, W: np.array, b: np.array, active_func: ActiveFunc
 
 
 def resnet_jacobian_test(X: np.array, W1: np.array, W2: np.array, b: np.array, active_func: ActiveFunc, policy):
-    """""
-    Gradient test with respect for W.
-    :param X matrix.
-    :param W matrix.
-    :param C matrix.
-    :return matplotlib graph which shows the gradiant test.
-    """""
-    dict_num = {"W1": 1, "W2": 2, "X": 3, "b": 4}
+    """
+    :param X: data matrix.
+    :param W1: first weights matrix.
+    :param W2: second weights matrix.
+    :param b: bias matrix.
+    :param active_func: activation function.
+    :param policy: Indicates to which parameter we are doing the test.
+    :return: matplotlib graph which shows the jacobian test.
+    """
     dict_param = {"W1": W1, "W2": W2, "X": X, "b": b}
     dict_name = {"W1": "$\delta W_1$", "W2": "$\delta W_2$", "X": "$\delta X$", "b": "$\delta b$"}
     d = np.random.randn(*dict_param[policy].shape)
-    # d = (U / np.linalg.norm(U))
 
     V = np.random.randn(W2.shape[0], X.shape[1])
 
@@ -257,7 +289,6 @@ def resnetJacTMV(X: np.array, W1: np.array, W2: np.array, b: np.array, V: np.arr
     arg = active_func.der(W1 @ X + b) * (W2.T @ V)
     dict_jac = {"W1": arg @ X.T, "W2": V @ (active_func.act(W1 @ X + b)).T, "X": V + W1.T @ arg,
                 "b": np.sum(arg, axis=1).reshape(-1, 1)}
-    # "W2": V @ (active_func.act(W1 @ X + b)).T
     return dict_jac[policy]
 
 
