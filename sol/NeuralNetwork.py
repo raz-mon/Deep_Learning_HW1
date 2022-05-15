@@ -86,7 +86,7 @@ class NeuralNetwork:
         :return: Current loss function value.
         :rtype: float
         """
-        return self.layers[-1].calc_loss_probs(self.X, self.C)
+        return self.layers[-1].calc_loss_probs(self.C)
 
 
     def train_net(self):
@@ -98,7 +98,7 @@ class NeuralNetwork:
             # For each mini-batch:
             for curr_Mb, curr_Indicator in batches:
                 # Calculate forward-pass -->
-                self.forward(curr_Mb, curr_Indicator.T)
+                sm_in = self.forward(curr_Mb, curr_Indicator.T)
                 # Calculate backward-pass -->
                 self.backward()
                 # Perform SGD step.

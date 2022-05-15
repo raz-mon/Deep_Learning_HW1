@@ -75,6 +75,10 @@ class SoftmaxLayer(Layer):
 
     # Inherits 'forward'.
 
+    def forward_pass(self, prev_out):
+        self.X = prev_out.copy()
+        # return self.activation.act(self.W @ prev_out + self.b)
+
     def calc_grad(self, V=None):
         expr = self.W @ self.X + self.b
         arg = expr - etta(expr)
