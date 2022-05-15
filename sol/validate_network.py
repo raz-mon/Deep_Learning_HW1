@@ -74,8 +74,8 @@ C_t = pd.DataFrame(mat['Ct']).to_numpy()
 X_v = (pd.DataFrame(mat['Yv']).to_numpy())
 C_v = pd.DataFrame(mat['Cv']).to_numpy()
 
-# X_t = X_t.copy()[:, :5000]
-# C_t = C_t.copy()[:, :5000]
+X_t = X_t.copy()[:, :5000]
+C_t = C_t.copy()[:, :5000]
 
 C_t = C_t.T
 C_v = C_v.T

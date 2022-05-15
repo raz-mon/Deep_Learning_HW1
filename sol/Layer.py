@@ -63,7 +63,6 @@ class SoftmaxLayer(Layer):
 
     def __init__(self, X, W, b, C, activation=Identity()):
         """
-
         :param self:
         :type self:
         :param W:
