@@ -74,8 +74,8 @@ C_t = pd.DataFrame(mat['Ct']).to_numpy()
 X_v = (pd.DataFrame(mat['Yv']).to_numpy())
 C_v = pd.DataFrame(mat['Cv']).to_numpy()
 
-X_t = X_t.copy()[:, :5000]
-C_t = C_t.copy()[:, :5000]
+#X_t = X_t.copy()[:, :5000]
+#C_t = C_t.copy()[:, :5000]
 
 C_t = C_t.T
 C_v = C_v.T
@@ -95,7 +95,7 @@ networks = [
      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Tanh()),
     (X_v, C_v, [n, 12 * n, 144 * n, 144 * n, 144 * n, 12 * n, n], 2, 500, 80, 0.005, [0, 0, 0, 0, 0, 0, 0], Tanh())]
 
-
+"""
 nn = NeuralNetwork(*networks[0])
 loss_t, probs_t, loss_v, probs_v = nn.train_net()
 xs = [[i for i in range(80)], [i for i in range(80)]]
@@ -110,3 +110,15 @@ _, p = nn.calc_loss_probs_validate()
 # plot_data(X_v, C_v, "Peaks - Validation - True Value", "X", "Y")
 # plot_data(X_v, p, "Peaks - Validation - Network Output", "X", "Y")
 # plt.show()
+"""
+bchs = util.generate_batches(X_t.T, C_t, 200)
+new_X, new_Y = bchs[0]
+
+nn_small = NeuralNetwork(*(new_X, new_Y, X_v, C_v, [n, 3 * n, 3 * n, 3 * n, 3 * n,5*n,5*n, 3 * n, 3 * n, 3 * n, 3 * n, l], 2, 15, 80, 0.002,
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], Tanh()))
+loss_t, probs_t, loss_v, probs_v = nn_small.train_net()
+xs = [[i for i in range(80)], [i for i in range(80)]]
+axis = initiate_graph(1, 2)
+plot_multi_graph(axis, 0, 0, xs, [loss_t, loss_v], ["train data", "validation data"], "Swiss Roll Data - Loss - train data vs validation data\n200 train data points", "epoch", "loss", 1)
+plot_multi_graph(axis, 1, 0, xs, [probs_t, probs_v], ["train data", "validation data"], "Swiss Roll Data - Accuracy - train data vs validation data\n200 train data points", "epoch", "accuracy", 1)
+plt.show()
